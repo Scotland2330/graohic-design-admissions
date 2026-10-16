@@ -144,9 +144,39 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 34px; }
 
 /* ---------- reveal ---------- */
 #reveal { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 420px); gap: 18px; align-items: center; }
-#reveal .stage img { max-width: 100%; max-height: calc(100vh - 40px); border: 4px solid var(--ink); border-radius: 6px; box-shadow: var(--shadow);
-  display: block; animation: slam .6s cubic-bezier(.2, 1.5, .4, 1) both; }
-@keyframes slam { from { transform: scale(.4) rotate(-8deg); opacity: 0; } to { transform: none; opacity: 1; } }
+/* the gallery: a dark wall, a spotlight that clicks on, a framed print and a museum label */
+.gallery { position: relative; width: 100%; height: 100%; min-height: 0; border: 4px solid var(--ink); border-radius: 20px; box-shadow: var(--shadow);
+  background: linear-gradient(#1b1b24 0 82%, #121218 82%); overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px; }
+.gallery .spot { position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  background: radial-gradient(ellipse 42% 62% at 50% 34%, rgba(255, 244, 214, .62), rgba(255, 244, 214, .14) 55%, transparent 75%),
+              linear-gradient(to bottom, rgba(255, 244, 214, .0) 0 82%, rgba(255, 244, 214, .12) 82%); }
+.gallery.lit .spot { animation: lightson .5s steps(1) forwards; }
+@keyframes lightson { 0% { opacity: 1; } 15% { opacity: .2; } 30% { opacity: 1; } 45% { opacity: .5; } 60%, 100% { opacity: 1; } }
+.frame { position: relative; background: #0b0b0d; padding: 12px; box-shadow: 0 28px 50px rgba(0, 0, 0, .7); opacity: .12; transition: opacity .2s; max-height: 100%; }
+.gallery.lit .frame { opacity: 1; transition-delay: .1s; }
+.frame img { display: block; max-width: 100%; max-height: calc(100vh - 210px); border: 14px solid #f6f6f2; }
+.placard { position: relative; align-self: flex-end; width: 260px; max-width: 100%; background: #f6f6f2; color: var(--ink); padding: 10px 12px; font-size: 11px;
+  line-height: 1.35; box-shadow: 0 6px 14px rgba(0, 0, 0, .5); opacity: 0; transform: translateY(8px); transition: opacity .4s .7s, transform .4s .7s; }
+.placard b { display: block; font-size: 12px; margin-bottom: 3px; }
+.placard small { display: block; margin-top: 5px; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: #55556a; }
+.gallery.lit .placard { opacity: 1; transform: none; }
+
+/* drop feedback */
+.pts { position: fixed; z-index: 5; transform: translate(-50%, -50%); pointer-events: none; font-family: var(--display); font-size: 26px; color: var(--white);
+  -webkit-text-stroke: 2px var(--ink); paint-order: stroke fill; text-shadow: 3px 3px 0 var(--ink); animation: rise .95s ease-out forwards; white-space: nowrap; }
+.pts.combo { font-size: 38px; color: var(--sun); }
+.pts.face { font-size: 30px; color: var(--mint); }
+@keyframes rise { 0% { transform: translate(-50%, -20%) scale(.5); opacity: 0; } 20% { transform: translate(-50%, -60%) scale(1.15); opacity: 1; }
+  100% { transform: translate(-50%, -190%) scale(1); opacity: 0; } }
+#poster.thud { animation: thud .35s ease-out; }
+@keyframes thud { 20% { transform: translate(-6px, 5px); } 40% { transform: translate(6px, -4px); } 60% { transform: translate(-4px, 2px); } 80% { transform: translate(2px, -1px); } }
+
+/* film leader */
+#leader { position: fixed; inset: 0; z-index: 8; background: #c8c4ba; }
+#leader canvas { width: 100%; height: 100%; display: block; }
+.leader-info { position: absolute; left: 0; right: 0; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.leader-info span { background: var(--ink); color: var(--white); font-family: var(--display); font-size: clamp(16px, 2.4vw, 24px); padding: 8px 16px; border-radius: 999px; text-transform: uppercase; }
 .result { padding: 20px; display: flex; flex-direction: column; gap: 12px; overflow: auto; max-height: 100%; }
 .rank { background: var(--pink); color: var(--white); border: 3px solid var(--ink); border-radius: 12px; padding: 8px 12px; align-self: flex-start;
   font-family: var(--display); font-size: 22px; text-transform: uppercase; transform: rotate(-2deg); }
@@ -174,7 +204,10 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 34px; }
   .screen { height: auto; min-height: 100%; }
   #build, #caption, #reveal { grid-template-columns: 1fr; grid-template-rows: auto; }
   #build .stage { height: 58vh; }
-  #caption .stage img, #reveal .stage img { max-height: 46vh; }
+  #caption .stage img { max-height: 46vh; }
+  .gallery { height: auto; padding: 22px 18px; gap: 14px; }
+  .frame img { max-height: 46vh; border-width: 10px; }
+  .placard { align-self: stretch; width: auto; }
   .machine { grid-template-columns: 1fr; }
   .reel .win { height: auto; min-height: 120px; }
   .reel img { width: 90px; height: 90px; }
@@ -189,7 +222,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 34px; }
 <button class="mute" id="muteBtn" aria-label="Sound on or off">SND</button>
 <canvas id="confetti"></canvas>
 <div class="toast" id="toast" role="status"></div>
-<input type="file" id="fileIn" accept="image/*" hidden>
+<div id="leader" hidden><canvas id="leaderCv"></canvas><div class="leader-info" id="leaderInfo"></div></div>
 
 <!-- TITLE -->
 <section class="screen" id="title">
@@ -208,7 +241,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 34px; }
 <!-- SPIN -->
 <section class="screen" id="spin" hidden>
   <h2 class="h1">Pull the chance machine</h2>
-  <p class="sub">Baldessari let chance make some of his choices. You get one picture, one mission and one palette.</p>
+  <p class="sub">Baldessari let chance make some of his choices. You get one found film still, one mission and one palette.</p>
   <div class="machine card">
     <div class="reel" id="reelPic"><div class="label">Picture</div><div class="win"></div></div>
     <div class="reel" id="reelMis"><div class="label">Mission</div><div class="win"></div></div>
@@ -216,8 +249,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 34px; }
   </div>
   <div class="spin-row">
     <button class="btn sun" id="pullBtn">Pull!</button>
-    <button class="btn" id="photoBtn">Use my photo</button>
-    <button class="btn go" id="goBtn" hidden>Go! 45 sec</button>
+    <button class="btn go" id="goBtn" hidden>Roll film!</button>
   </div>
 </section>
 
@@ -266,7 +298,13 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 34px; }
 
 <!-- REVEAL -->
 <section class="screen" id="reveal" hidden>
-  <div class="stage"><img id="finalImg" alt="Your finished poster"></div>
+  <div class="stage">
+    <div class="gallery" id="gallery">
+      <div class="spot"></div>
+      <div class="frame"><img id="finalImg" alt="Your finished poster"></div>
+      <div class="placard" id="placard"></div>
+    </div>
+  </div>
   <div class="card result">
     <div class="label">Your artist type</div>
     <div class="rank" id="rank"></div>
@@ -341,21 +379,56 @@ const TALK = [
 const PW = 940; // photo is PW x PW
 function rand(seed) { return () => (seed = (seed * 16807) % 2147483647) / 2147483647; }
 
-function figure(g, x, y, s, tone, faceTone) {
+let FIG = 0;
+const HAIR = ["short", "long", "bun", "curly", "short", "cap", "long", "curly"];
+const HAIR_TONES = ["#151515", "#2e2a26", "#8d867b", "#151515", "#4a443d"];
+// a found-photo person: shaded torso, arms, ears, and one of several hairstyles
+function figure(g, x, y, s, tone, faceTone, hair) {
+  const n = FIG++;
+  hair = hair || HAIR[n % HAIR.length];
+  const hc = HAIR_TONES[n % HAIR_TONES.length];
+  if (hair === "long") { g.fillStyle = hc; g.beginPath(); g.ellipse(x, y + 18*s, 31*s, 50*s, 0, 0, Math.PI*2); g.fill(); }
+  // torso
   g.fillStyle = tone;
   g.beginPath();
-  g.moveTo(x - 46*s, y + 230*s);
-  g.quadraticCurveTo(x - 50*s, y + 60*s, x - 30*s, y + 48*s);
-  g.lineTo(x + 30*s, y + 48*s);
-  g.quadraticCurveTo(x + 50*s, y + 60*s, x + 46*s, y + 230*s);
+  g.moveTo(x - 50*s, y + 230*s);
+  g.quadraticCurveTo(x - 56*s, y + 64*s, x - 30*s, y + 50*s);
+  g.lineTo(x + 30*s, y + 50*s);
+  g.quadraticCurveTo(x + 56*s, y + 64*s, x + 50*s, y + 230*s);
   g.closePath(); g.fill();
+  const sh = g.createLinearGradient(x - 50*s, 0, x + 50*s, 0);
+  sh.addColorStop(0, "rgba(255,255,255,.10)"); sh.addColorStop(.5, "rgba(0,0,0,0)"); sh.addColorStop(1, "rgba(0,0,0,.28)");
+  g.fillStyle = sh; g.fill();
+  // arms
+  g.strokeStyle = "rgba(0,0,0,.35)"; g.lineWidth = 3*s; g.lineCap = "round";
+  g.beginPath(); g.moveTo(x - 36*s, y + 80*s); g.quadraticCurveTo(x - 40*s, y + 150*s, x - 36*s, y + 215*s); g.stroke();
+  g.beginPath(); g.moveTo(x + 36*s, y + 80*s); g.quadraticCurveTo(x + 40*s, y + 150*s, x + 36*s, y + 215*s); g.stroke();
+  // shirt v
   g.fillStyle = "#ebe8e2";
-  g.beginPath(); g.moveTo(x - 10*s, y + 48*s); g.lineTo(x, y + 80*s); g.lineTo(x + 10*s, y + 48*s); g.fill();
+  g.beginPath(); g.moveTo(x - 11*s, y + 50*s); g.lineTo(x, y + 84*s); g.lineTo(x + 11*s, y + 50*s); g.fill();
+  // neck, ears, head
   g.fillStyle = faceTone;
-  g.fillRect(x - 9*s, y + 22*s, 18*s, 28*s);
+  g.fillRect(x - 9*s, y + 22*s, 18*s, 30*s);
+  g.beginPath(); g.ellipse(x - 25*s, y + 2*s, 5*s, 8*s, 0, 0, Math.PI*2); g.ellipse(x + 25*s, y + 2*s, 5*s, 8*s, 0, 0, Math.PI*2); g.fill();
   g.beginPath(); g.ellipse(x, y, 25*s, 30*s, 0, 0, Math.PI*2); g.fill();
-  g.fillStyle = "#1b1b1b";
-  g.beginPath(); g.ellipse(x, y - 14*s, 26*s, 17*s, 0, Math.PI, Math.PI*2); g.fill();
+  const fs = g.createLinearGradient(x - 25*s, 0, x + 25*s, 0);
+  fs.addColorStop(0, "rgba(255,255,255,.12)"); fs.addColorStop(1, "rgba(0,0,0,.22)");
+  g.fillStyle = fs; g.fill();
+  // hair
+  g.fillStyle = hc;
+  if (hair === "curly") {
+    for (let a = Math.PI * 1.05; a <= Math.PI * 1.95; a += Math.PI / 7) { g.beginPath(); g.arc(x + Math.cos(a) * 24*s, y - 6*s + Math.sin(a) * 26*s, 11*s, 0, Math.PI*2); g.fill(); }
+  } else if (hair === "cap") {
+    g.beginPath(); g.ellipse(x, y - 12*s, 27*s, 20*s, 0, Math.PI, Math.PI*2); g.fill();
+    g.fillRect(x - 4*s, y - 14*s, 40*s, 6*s);
+  } else if (hair === "grad") {
+    g.fillStyle = "#121214"; g.beginPath(); g.ellipse(x, y - 14*s, 26*s, 15*s, 0, Math.PI, Math.PI*2); g.fill();
+    g.beginPath(); g.moveTo(x - 44*s, y - 30*s); g.lineTo(x, y - 46*s); g.lineTo(x + 44*s, y - 30*s); g.lineTo(x, y - 16*s); g.closePath(); g.fill();
+    g.strokeStyle = "#d9d4c7"; g.lineWidth = 2.5*s; g.beginPath(); g.moveTo(x, y - 31*s); g.lineTo(x + 30*s, y - 26*s); g.lineTo(x + 32*s, y - 4*s); g.stroke();
+  } else {
+    g.beginPath(); g.ellipse(x, y - 13*s, 27*s, 19*s, 0, Math.PI, Math.PI*2); g.fill();
+    if (hair === "bun") { g.beginPath(); g.arc(x, y - 36*s, 12*s, 0, Math.PI*2); g.fill(); }
+  }
   return { x, y, r: 34*s };
 }
 
@@ -442,6 +515,32 @@ const SCENES = [
       }
       return f;
   }},
+  { name: "Graduation", draw(g) {
+      const sky = g.createLinearGradient(0, 0, 0, PW);
+      sky.addColorStop(0, "#d9d6cf"); sky.addColorStop(.65, "#a7a39b"); sky.addColorStop(1, "#6f6c66");
+      g.fillStyle = sky; g.fillRect(0, 0, PW, PW);
+      g.fillStyle = "#8d8a83"; g.fillRect(0, PW*.68, PW, PW*.32);
+      g.fillStyle = "#121214";   // tossed caps
+      [[150, 110, .3], [420, 70, -.4], [690, 130, .5], [820, 60, -.2], [300, 190, .1]].forEach(([x, y, a]) => {
+        g.save(); g.translate(x, y); g.rotate(a); g.beginPath(); g.moveTo(-36, 0); g.lineTo(0, -14); g.lineTo(36, 0); g.lineTo(0, 14); g.closePath(); g.fill(); g.restore(); });
+      const f = [];
+      [140, 330, 520, 710].forEach((x, i) => f.push(figure(g, x + 40, 400 + (i%2)*20, 1.55, "#18181a", "#c6bfb2", "grad")));
+      return f;
+  }},
+  { name: "The museum", draw(g) {
+      g.fillStyle = "#cfccc5"; g.fillRect(0, 0, PW, PW);
+      g.fillStyle = "#9d9a93"; g.fillRect(0, PW*.74, PW, PW*.26);
+      [[60, 90, 300, 220], [420, 60, 220, 300], [700, 110, 190, 190]].forEach(([x, y, w, h], i) => {
+        g.fillStyle = "#2a2927"; g.fillRect(x - 12, y - 12, w + 24, h + 24);
+        g.fillStyle = "#e9e6df"; g.fillRect(x, y, w, h);
+        g.fillStyle = ["#55534f", "#3a3936", "#7b7873"][i];
+        if (i === 0) { g.beginPath(); g.arc(x + w*.4, y + h*.5, 70, 0, Math.PI*2); g.fill(); }
+        if (i === 1) { g.fillRect(x + 30, y + 40, w - 60, 60); g.fillRect(x + 30, y + 130, 80, h - 170); }
+        if (i === 2) { g.beginPath(); g.moveTo(x + 20, y + h - 20); g.lineTo(x + w/2, y + 20); g.lineTo(x + w - 20, y + h - 20); g.fill(); }
+      });
+      g.fillStyle = "#5e5b56"; g.fillRect(300, 640, 360, 26); g.fillRect(320, 666, 16, 60); g.fillRect(624, 666, 16, 60);   // bench
+      return [figure(g, 200, 430, 1.55, "#2b2a2c", "#c4bdb0"), figure(g, 480, 410, 1.6, "#4a4845", "#bdb6a9"), figure(g, 760, 440, 1.5, "#1d1d1f", "#c9c2b5")];
+  }},
 ];
 
 const STILLS = SCENES.map((sc, i) => {
@@ -480,12 +579,12 @@ const W = 1080, H = 1350, PX = 70, PY = 70;
 const poster = $("#poster"), ctx = poster.getContext("2d");
 
 const S = {
-  photo: null, photoName: "", faces: [], userPhoto: false,
+  photo: null, photoName: "", faces: [],
   mission: MISSIONS[0], palette: PALETTES[0],
   shapes: [], tool: "dot", color: C.red, size: 96,
   caption: "", custom: false, spinsLeft: 3,
   t0: 0, timeLeft: CONFIG.buildSeconds, timer: null, missionDone: false, missionAt: 0,
-  respins: 1, sound: true, edition: 1, final: null,
+  respins: 1, sound: true, combo: 0, bestCombo: 0, lastDrop: 0, hiddenCount: 0, edition: 1, final: null,
 };
 try { S.edition = Number(localStorage.getItem("dd-edition") || 0) + 1; } catch {}
 
@@ -512,6 +611,9 @@ const sfx = {
   fanfare: () => [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => tone(f, .22, "square", .08), i * 120)),
   buzz: () => tone(140, .4, "sawtooth", .12, -40),
   erase: () => tone(500, .12, "sine", .15, -380),
+  thud: () => { tone(90, .35, "sine", .4, -50); tone(60, .4, "triangle", .3); },
+  beep: () => tone(1000, .09, "sine", .18),
+  click: () => tone(1800, .03, "square", .12),
 };
 $("#muteBtn").onclick = () => { S.sound = !S.sound; $("#muteBtn").textContent = S.sound ? "SND" : "OFF"; };
 
@@ -589,11 +691,11 @@ let spinning = false;
 async function pull() {
   if (spinning) return; spinning = true;
   $("#pullBtn").disabled = true; $("#goBtn").hidden = true;
-  const still = S.userPhoto ? null : pick(STILLS);
-  if (still) { S.photo = still.canvas; S.photoName = still.name; S.faces = still.faces; }
+  const still = pick(STILLS);
+  S.photo = still.canvas; S.photoName = still.name; S.faces = still.faces;
   S.mission = pick(missionsFor(S.faces));
   S.palette = pick(PALETTES);
-  const pics = S.userPhoto ? [] : spinReel($("#reelPic"), reelPic, STILLS, 900, still);
+  const pics = spinReel($("#reelPic"), reelPic, STILLS, 900, still);
   await Promise.all([pics,
     spinReel($("#reelMis"), reelMis, missionsFor(S.faces), 1500, S.mission),
     spinReel($("#reelPal"), reelPal, PALETTES, 2100, S.palette)]);
@@ -605,34 +707,26 @@ async function pull() {
 }
 $("#pullBtn").onclick = pull;
 
-$("#photoBtn").onclick = () => $("#fileIn").click();
-$("#fileIn").onchange = e => {
-  const f = e.target.files[0]; if (!f) return;
-  const img = new Image();
-  img.onload = () => {
-    const c = document.createElement("canvas"); c.width = c.height = PW; const g = c.getContext("2d");
-    const s = Math.max(PW / img.naturalWidth, PW / img.naturalHeight), w = img.naturalWidth * s, h = img.naturalHeight * s;
-    g.drawImage(img, (PW - w) / 2, (PW - h) / 2, w, h);
-    grain(g, 99);
-    S.photo = c; S.photoName = "Your photo"; S.faces = []; S.userPhoto = true;
-    $("#reelPic .win").innerHTML = `<div><img src="${c.toDataURL("image/jpeg", .7)}" alt=""><div class="name">Your photo</div></div>`;
-    $("#reelPic").classList.add("landed");
-    if (S.mission.faces) { S.mission = pick(missionsFor([])); $("#reelMis .win").innerHTML = reelMis(S.mission); }
-    URL.revokeObjectURL(img.src); toast("Your photo is in. Now hide yourself.");
-  };
-  img.src = URL.createObjectURL(f); e.target.value = "";
-};
-
 /* =========================================================
    Build screen
    ========================================================= */
-function render(g = ctx) {
+function render(g = ctx, now = performance.now()) {
   g.fillStyle = C.white; g.fillRect(0, 0, W, H);
   g.save(); g.beginPath(); g.rect(PX, PY, PW, PW); g.clip();
   if (S.photo) g.drawImage(S.photo, PX, PY);
   for (const s of S.shapes) {
     g.fillStyle = s.color;
-    if (s.type === "dot") { g.beginPath(); g.arc(PX + s.x, PY + s.y, s.r * (s.pop ?? 1), 0, Math.PI * 2); g.fill(); }
+    if (s.type === "dot") {
+      const a = s.anim ? dropFrame(s, now) : null;
+      g.beginPath();
+      if (a) g.ellipse(PX + s.x, PY + s.y + a.dy + s.r * (1 - a.sy), s.r * a.sx, s.r * a.sy, 0, 0, Math.PI * 2);
+      else g.arc(PX + s.x, PY + s.y, s.r * (s.pop ?? 1), 0, Math.PI * 2);
+      g.fill();
+      if (a && a.ring > 0) {
+        g.strokeStyle = `rgba(255,255,255,${a.ring})`; g.lineWidth = 10 * a.ring;
+        g.beginPath(); g.arc(PX + s.x, PY + s.y, s.r * (1 + (1 - a.ring) * 1.3), 0, Math.PI * 2); g.stroke();
+      }
+    }
     else g.fillRect(PX + Math.min(s.x, s.x + s.w), PY + Math.min(s.y, s.y + s.h), Math.abs(s.w), Math.abs(s.h));
   }
   g.restore();
@@ -680,7 +774,9 @@ function score() {
   const mission = S.missionDone ? 250 : 0;
   const time = S.missionDone ? Math.max(0, Math.round(S.timeLeft)) * 5 : 0;
   const caption = S.custom ? 50 : 0;
-  return { shapes, colors, mission, time, caption, total: shapes + colors + mission + time + caption };
+  const faces = S.faces.filter(f => covered(f)).length * 15;
+  const combo = S.bestCombo >= 3 ? S.bestCombo * 15 : 0;
+  return { shapes, colors, faces, combo, mission, time, caption, total: shapes + colors + faces + combo + mission + time + caption };
 }
 
 function updateMission() {
@@ -695,6 +791,7 @@ function updateMission() {
 
 function startBuild() {
   S.shapes = []; S.missionDone = false; S.caption = ""; S.custom = false;
+  S.combo = 0; S.bestCombo = 0; S.lastDrop = 0; S.hiddenCount = 0;
   setPalette();
   $("#missionT").textContent = S.mission.t;
   $$(".tool").forEach((b, i) => b.classList.toggle("on", i === 0)); S.tool = "dot";
@@ -717,7 +814,38 @@ function endBuild() {
   updateMission();
   startCaption();
 }
-$("#goBtn").onclick = startBuild;
+$("#goBtn").onclick = () => filmLeader().then(startBuild);
+
+// old-cinema countdown leader: sweeping wedge, crosshair, flicker, grain
+function filmLeader() {
+  return new Promise(done => {
+    const ov = $("#leader"), lc = $("#leaderCv"), g = lc.getContext("2d");
+    ov.hidden = false;
+    const dpr = Math.min(2, devicePixelRatio || 1);
+    lc.width = innerWidth * dpr; lc.height = innerHeight * dpr;
+    const w = lc.width, h = lc.height, R0 = Math.min(w, h) * .36, t0 = performance.now(), STEP = 850;
+    let lastN = 4;
+    $("#leaderInfo").innerHTML = `<span>Scene: ${S.photoName}</span><span>Mission: ${S.mission.t}</span>`;
+    (function f(now) {
+      const t = now - t0, n = 3 - Math.floor(t / STEP), k = (t % STEP) / STEP;
+      if (n < 1) { ov.hidden = true; done(); return; }
+      if (n !== lastN) { sfx.beep(); lastN = n; }
+      const flick = .9 + Math.random() * .1;
+      g.fillStyle = `rgb(${200*flick|0},${196*flick|0},${186*flick|0})`; g.fillRect(0, 0, w, h);
+      g.fillStyle = `rgba(30,28,26,.55)`;
+      g.beginPath(); g.moveTo(w/2, h/2); g.arc(w/2, h/2, Math.hypot(w, h), -Math.PI/2, -Math.PI/2 + k * Math.PI * 2); g.closePath(); g.fill();
+      g.strokeStyle = "#1a1917"; g.lineWidth = 5 * dpr;
+      g.beginPath(); g.moveTo(0, h/2); g.lineTo(w, h/2); g.moveTo(w/2, 0); g.lineTo(w/2, h); g.stroke();
+      g.lineWidth = 7 * dpr;
+      [R0, R0 * .82].forEach(r => { g.beginPath(); g.arc(w/2, h/2, r, 0, Math.PI * 2); g.stroke(); });
+      g.fillStyle = "#1a1917"; g.font = `${R0 * 1.15}px "Bowlby One", Impact, sans-serif`; g.textAlign = "center"; g.textBaseline = "middle";
+      g.fillText(n, w/2, h/2 + R0 * .06);
+      for (let i = 0; i < 260; i++) { g.fillStyle = Math.random() < .5 ? "rgba(0,0,0,.35)" : "rgba(255,255,255,.35)"; g.fillRect(Math.random() * w, Math.random() * h, 2 * dpr, 2 * dpr); }
+      if (Math.random() < .5) { g.fillStyle = "rgba(0,0,0,.4)"; g.fillRect(Math.random() * w, 0, 1.5 * dpr, h); }
+      requestAnimationFrame(f);
+    })(t0);
+  });
+}
 $("#doneBtn").onclick = () => { if (!S.shapes.length) return toast("Drop at least one dot first."); endBuild(); };
 
 // keep the 4:5 poster as large as the stage allows
@@ -734,6 +862,48 @@ function pt(e) {
   return { x: (e.clientX - r.left) / r.width * W - PX, y: (e.clientY - r.top) / r.height * H - PY };
 }
 function hit(p) { for (let i = S.shapes.length - 1; i >= 0; i--) if (inShape(p.x, p.y, S.shapes[i])) return i; return -1; }
+// a dot falls from the top of the picture, squashes on impact and throws a shockwave
+const FALL = 230, SETTLE = 520;
+function dropFrame(s, now) {
+  const t = now - s.anim;
+  if (t < FALL) { const k = t / FALL; return { dy: -(s.y + s.r + 30) * (1 - k * k), sx: .9, sy: 1.1, ring: 0 }; }
+  const k = Math.min(1, (t - FALL) / SETTLE), w = Math.sin(k * Math.PI * 3) * Math.exp(-k * 4);
+  return { dy: 0, sx: 1 + .3 * w, sy: 1 - .3 * w, ring: 1 - k };
+}
+let animating = false;
+function animLoop() {
+  if (animating) return; animating = true;
+  (function f() {
+    const now = performance.now();
+    S.shapes.forEach(s => { if (s.anim && now - s.anim > FALL + SETTLE) delete s.anim; });
+    render(ctx, now);
+    if (S.shapes.some(s => s.anim)) requestAnimationFrame(f); else animating = false;
+  })();
+}
+function dropIn(s) {
+  s.anim = performance.now(); animLoop();
+  setTimeout(() => landed(s), FALL);
+}
+function landed(s) {
+  sfx.pop();
+  if (s.r > 140) { sfx.thud(); poster.classList.remove("thud"); void poster.offsetWidth; poster.classList.add("thud"); }
+  const now = performance.now();
+  S.combo = now - S.lastDrop < 900 ? S.combo + 1 : 1; S.lastDrop = now;
+  S.bestCombo = Math.max(S.bestCombo, S.combo);
+  popup(s.x, s.y - s.r * .4, "+10", "");
+  if (S.combo >= 3) { popup(s.x, s.y - s.r - 30, `COMBO x${S.combo}!`, "combo"); tone(500 + S.combo * 90, .12, "square", .07); }
+  const hidden = S.faces.filter(f => covered(f)).length;
+  if (hidden > S.hiddenCount) popup(s.x, s.y + s.r * .5, hidden - S.hiddenCount > 1 ? `${hidden - S.hiddenCount} FACES GONE!` : "FACE GONE!", "face");
+  S.hiddenCount = hidden;
+  updateMission();
+}
+// floating points over the poster
+function popup(x, y, text, cls) {
+  const r = poster.getBoundingClientRect(), el = document.createElement("div");
+  el.className = "pts " + cls; el.textContent = text;
+  el.style.left = r.left + (PX + x) / W * r.width + "px"; el.style.top = r.top + (PY + y) / H * r.height + "px";
+  document.body.appendChild(el); setTimeout(() => el.remove(), 1000);
+}
 function popIn(s) {
   const t0 = performance.now();
   (function f(now) { const k = Math.min(1, (now - t0) / 220); s.pop = k < 1 ? 1 + Math.sin(k * Math.PI) * .18 - (1 - k) * .3 : 1; render(); if (k < 1) requestAnimationFrame(f); else delete s.pop; })(t0);
@@ -744,11 +914,12 @@ poster.addEventListener("pointerdown", e => {
   if (p.x < 0 || p.y < 0 || p.x > PW || p.y > PW) return;
   poster.setPointerCapture(e.pointerId);
   const i = hit(p);
-  if (S.tool === "erase") { if (i >= 0) { S.shapes.splice(i, 1); sfx.erase(); render(); updateMission(); } return; }
+  if (S.tool === "erase") { if (i >= 0) { S.shapes.splice(i, 1); sfx.erase(); render(); S.hiddenCount = S.faces.filter(f => covered(f)).length; updateMission(); } return; }
   if (i >= 0) { const s = S.shapes[i]; drag = { mode: "move", s, dx: p.x - s.x, dy: p.y - s.y }; return; }
   if (S.tool === "dot") {
     const s = { type: "dot", x: p.x, y: p.y, r: S.size / 2 + 8, color: S.color };
-    S.shapes.push(s); drag = { mode: "move", s, dx: 0, dy: 0 }; sfx.pop(); popIn(s);
+    S.shapes.push(s); drag = { mode: "move", s, dx: 0, dy: 0, fresh: true }; dropIn(s);
+    return;
   } else {
     const s = { type: "bar", x: p.x, y: p.y, w: 1, h: 1, color: S.color };
     S.shapes.push(s); drag = { mode: "bar", s }; sfx.pop();
@@ -758,7 +929,7 @@ poster.addEventListener("pointerdown", e => {
 poster.addEventListener("pointermove", e => {
   if (!drag) return;
   const p = pt(e);
-  if (drag.mode === "move") { drag.s.x = p.x - drag.dx; drag.s.y = p.y - drag.dy; }
+  if (drag.mode === "move") { drag.s.x = p.x - drag.dx; drag.s.y = p.y - drag.dy; delete drag.s.anim; }
   else { drag.s.w = p.x - drag.s.x; drag.s.h = p.y - drag.s.y; }
   render();
 });
@@ -767,7 +938,7 @@ const endDrag = () => {
     const s = drag.s;
     if (Math.abs(s.w) < 12 && Math.abs(s.h) < 12) { s.w = S.size * 2.6; s.h = S.size * .6; s.x -= s.w / 2; s.y -= s.h / 2; }
   }
-  if (drag) { render(); updateMission(); }
+  if (drag && !(drag.fresh && drag.s.anim)) { render(); updateMission(); }
   drag = null;
 };
 poster.addEventListener("pointerup", endDrag);
@@ -775,14 +946,14 @@ poster.addEventListener("pointercancel", endDrag);
 
 $$(".tool").forEach(b => b.onclick = () => { S.tool = b.dataset.tool; $$(".tool").forEach(x => x.classList.toggle("on", x === b)); sfx.tick(); });
 $("#size").oninput = e => S.size = +e.target.value;
-$("#undoBtn").onclick = () => { if (S.shapes.pop()) { sfx.erase(); render(); updateMission(); } };
+$("#undoBtn").onclick = () => { if (S.shapes.pop()) { sfx.erase(); render(); S.hiddenCount = S.faces.filter(f => covered(f)).length; updateMission(); } };
 // chance move: throw a handful of dots
 $("#splatBtn").onclick = () => {
   const n = 5 + (Math.random() * 4 | 0);
   for (let k = 0; k < n; k++) setTimeout(() => {
     const s = { type: "dot", x: 60 + Math.random() * (PW - 120), y: 60 + Math.random() * (PW - 120), r: 20 + Math.random() * 90, color: pick(S.palette.colors) };
-    S.shapes.push(s); sfx.pop(); popIn(s); updateMission();
-  }, k * 70);
+    S.shapes.push(s); dropIn(s);
+  }, k * 90);
 };
 
 /* =========================================================
@@ -820,6 +991,7 @@ $("#lockBtn").onclick = reveal;
 /* =========================================================
    Reveal
    ========================================================= */
+function escapeHtml(t) { return t.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]); }
 function rankFor(cov, mystery, colors, n) {
   if (n <= 3) return "The Minimalist";
   if (mystery >= 1 && S.faces.length) return "Master of Mystery";
@@ -837,7 +1009,7 @@ function reveal() {
   const colors = new Set(S.shapes.map(s => s.color)).size;
   $("#rank").textContent = rankFor(cov, mystery, colors, S.shapes.length);
   $("#breakdown").innerHTML = [
-    ["Shapes", sc.shapes], ["Color range", sc.colors],
+    ["Shapes", sc.shapes], ["Color range", sc.colors], ["Faces hidden", sc.faces], [`Best combo x${S.bestCombo}`, sc.combo],
     [S.missionDone ? `Mission: ${S.mission.t}` : "Mission missed", sc.mission],
     ["Time bonus", sc.time], ["Own caption", sc.caption],
   ].map(([k, v]) => `<div><span>${k}</span><span>+${v}</span></div>`).join("");
@@ -846,11 +1018,18 @@ function reveal() {
   requestAnimationFrame(() => requestAnimationFrame(() => $$(".meter b").forEach(b => b.style.width = b.dataset.w + "%")));
   $("#talk").innerHTML = `<b>Talk about it</b>${pick(TALK)}`;
   $("#initIn").value = ""; $("#saveScoreBtn").disabled = false; $("#saveScoreBtn").textContent = "Save score";
+  const yr = new Date().getFullYear();
+  $("#placard").innerHTML = `<b>Untitled (${escapeHtml(S.caption.replace(/[.]$/, ""))}), ${yr}</b>Pigment dots on found film still, ${S.photoName.toLowerCase()}<br>${S.shapes.length} shapes, made in ${Math.max(1, Math.round(CONFIG.buildSeconds - S.timeLeft))} seconds<small>Dot Drop no. ${String(S.edition).padStart(4, "0")} · ${CONFIG.school}</small>`;
+  $("#bigScore").textContent = "0";
+  $("#gallery").classList.remove("lit");
   show("reveal");
-  // count-up
-  const t0 = performance.now();
-  (function up(now) { const k = Math.min(1, (now - t0) / 1200); $("#bigScore").textContent = Math.round(sc.total * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(up); })(t0);
-  sfx.fanfare(); burst(160);
+  // lights off, click, spotlight on, then the score
+  setTimeout(() => { sfx.click(); $("#gallery").classList.add("lit"); }, 650);
+  setTimeout(() => {
+    sfx.fanfare(); burst(160);
+    const t0 = performance.now();
+    (function up(now) { const k = Math.min(1, (now - t0) / 1200); $("#bigScore").textContent = Math.round(sc.total * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(up); })(t0);
+  }, 1300);
   try { localStorage.setItem("dd-edition", String(S.edition)); } catch {}
 }
 $("#saveScoreBtn").onclick = () => {
@@ -902,7 +1081,7 @@ function goTitle() {
   clearInterval(S.timer); drawTitle(); show("title");
 }
 function goSpin() {
-  S.userPhoto = false; S.respins = 1; S.faces = []; S.photo = null;
+  S.respins = 1; S.faces = []; S.photo = null;
   $("#pullBtn").textContent = "Pull!"; $("#pullBtn").disabled = false; $("#goBtn").hidden = true;
   ["#reelPic", "#reelMis", "#reelPal"].forEach(r => { $(r).classList.remove("landed"); $(r + " .win").innerHTML = '<div class="mission" style="opacity:.25">?</div>'; });
   show("spin");
