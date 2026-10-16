@@ -1,4 +1,8 @@
-# Put a Dot On It: a Baldessari Booth
+# Dot Drop / Put a Dot On It: Baldessari activities
+
+**`dot-drop.html` is the main activity:** an arcade-style art game for high schoolers. Spin the chance machine for a picture, a mission and a palette, dot the picture in 45 seconds, spin a caption, then get a score, an artist type and a poster. Edit `CONFIG`, `PALETTES`, `CAPTIONS` and `MISSIONS` at the top of its script.
+
+The calmer kiosk version and the paper kit are described below.
 
 A 60-second graphic design activity for the College of Art and Design admissions table.
 Visitors take a photo (or pick a "found" film still), cover faces with bold colored dots
