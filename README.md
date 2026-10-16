@@ -1,1 +1,1 @@
-# graohic-design-admissions
+# graphic-design-admissions
