@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dot Your Face — Paper Kit</title>
+<style>
+  @page { size: letter; margin: 0; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #888; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #111; }
+  .sheet { width: 8.5in; height: 11in; background: #fff; margin: 20px auto; position: relative; overflow: hidden;
+    page-break-after: always; break-after: page; }
+  @media print { body { background: #fff; } .sheet { margin: 0; } .noprint { display: none; } }
+  .noprint { max-width: 8.5in; margin: 20px auto 0; background: #111; color: #fff; padding: 14px 18px; font-size: 14px; line-height: 1.4; }
+  .noprint button { font: 800 14px inherit; padding: 8px 16px; margin-top: 8px; }
+  h1, h2, h3 { margin: 0; text-transform: uppercase; font-weight: 900; }
+  .caps { text-transform: uppercase; letter-spacing: .12em; font-size: 11px; font-weight: 700; }
+  .dot { display: inline-block; border-radius: 50%; }
+
+  /* sign */
+  .sign { padding: .7in; display: flex; flex-direction: column; height: 100%; }
+  .sign .photo { position: relative; width: 4.8in; height: 4.8in; margin: 0 auto .3in; border: .14in solid #fff;
+    box-shadow: 0 0 0 1px #ccc; }
+  .sign .photo img { width: 100%; height: 100%; display: block; filter: grayscale(1) contrast(1.1); }
+  .sign .photo .dot { position: absolute; }
+  .sign h1 { font-size: 64px; line-height: .95; text-align: center; }
+  .sign ol { list-style: none; padding: 0; margin: .3in 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: .25in; }
+  .sign li { font-size: 15px; line-height: 1.3; }
+  .sign li b { display: block; font-size: 22px; font-weight: 900; text-transform: uppercase; margin-bottom: 4px; }
+  .sign li .dot { width: 26px; height: 26px; margin-bottom: 8px; }
+  .sign .foot { margin-top: auto; display: flex; justify-content: space-between; border-top: 3px solid #111; padding-top: 8px; }
+
+  /* poster cards: 2 per sheet */
+  .card { height: 5.5in; padding: .35in .9in .3in; border-bottom: 1px dashed #aaa; display: flex; flex-direction: column; }
+  .card:last-child { border-bottom: 0; }
+  .card .row { display: flex; gap: .3in; align-items: flex-start; flex: 1; }
+  .card img { width: 3.6in; height: 3.6in; filter: grayscale(1) contrast(1.1); display: block; }
+  .card .lines { flex: 1; display: flex; flex-direction: column; height: 3.6in; }
+  .card .lines .caps { margin-bottom: 6px; }
+  .card .lines i { display: block; border-bottom: 2px solid #111; height: .55in; }
+  .card .lines p { font-size: 11px; color: #555; margin: auto 0 0; line-height: 1.35; }
+  .card .foot { display: flex; justify-content: space-between; border-top: 3px solid #111; padding-top: 6px; margin-top: .2in; }
+
+  /* caption slips */
+  .slips { padding: .5in; }
+  .slips h2 { font-size: 22px; margin-bottom: .15in; }
+  .slips .grid { display: grid; grid-template-columns: 1fr 1fr; }
+  .slips .grid div { border: 1px dashed #999; padding: .22in .2in; font-weight: 900; text-transform: uppercase; font-size: 17px;
+    line-height: 1.1; min-height: .95in; display: flex; align-items: center; }
+  .guide { padding: .7in; font-size: 14px; line-height: 1.45; }
+  .guide h2 { font-size: 30px; margin-bottom: .15in; }
+  .guide h3 { font-size: 15px; margin: .22in 0 .05in; letter-spacing: .04em; }
+  .guide ul { margin: 0; padding-left: 1.1em; }
+</style>
+</head>
+<body>
+
+<div class="noprint">
+  <b>Paper kit.</b> Print on letter paper (cardstock for the cards). Pages: 1 table sign · 2–3 poster cards (4 found stills) · 4 caption slips · 5 facilitator sheet.
+  Bring round color-coding dot stickers (½" and ¾"), a few black markers, and painter's tape for a "wall" of finished pieces.<br>
+  <button onclick="print()">Print</button>
+</div>
+
+<!-- 1. Table sign -->
+<section class="sheet sign">
+  <div class="photo" id="signPhoto"></div>
+  <h1>Put a dot<br>on it.</h1>
+  <ol>
+    <li><span class="dot" style="background:#e8322b"></span><b>1. Cover</b>Stick a colored dot over a face. Or every face.</li>
+    <li><span class="dot" style="background:#f6cf1d"></span><b>2. Caption</b>Write one flat, literal, slightly-too-honest line under it.</li>
+    <li><span class="dot" style="background:#1f5fbf"></span><b>3. Done</b>Sign it. It's art now. Take it home or add it to the wall.</li>
+  </ol>
+  <p style="text-align:center;font-size:14px;margin:.3in 0 .25in">After John Baldessari, who covered faces in found photos with price-tag dots so you'd look at everything else.</p>
+  <div class="foot"><span class="caps" data-school></span><span class="caps">A 60-second design challenge</span></div>
+</section>
+
+<!-- 2–3. Poster cards -->
+<section class="sheet" id="cards1"></section>
+<section class="sheet" id="cards2"></section>
+
+<!-- 4. Caption slips -->
+<section class="sheet slips">
+  <h2>Stuck? Steal a caption.</h2>
+  <div class="grid" id="slips"></div>
+</section>
+
+<!-- 5. Facilitator sheet -->
+<section class="sheet guide">
+  <h2>Running the table</h2>
+  <p><b>The pitch (10 seconds):</b> "Want to make a piece of art in a minute? Pick a photo, cover a face with a dot, give it a caption. That's how one of the most important conceptual artists in LA worked, and it's how graphic design works too."</p>
+
+  <h3>Keep the line moving</h3>
+  <ul>
+    <li>Aim for 60 seconds per visitor. Hand them a card and the sticker sheet in one motion.</li>
+    <li>If they freeze on the caption, hand them a slip from page 4. Done is better than perfect.</li>
+    <li>Have two or three people working at once; the tablet version handles one, paper handles the overflow.</li>
+    <li>Tape finished pieces in a grid behind the table. A growing wall draws the next crowd.</li>
+  </ul>
+
+  <h3>Talking points while they work</h3>
+  <ul>
+    <li>Covering the face makes you look at everything else: posture, gesture, the space between people. Designers steer attention for a living.</li>
+    <li>Baldessari worked with found film stills and press photos. Remixing existing images is art direction.</li>
+    <li>Picture + caption is the basic unit of graphic design. Every poster, ad and magazine spread starts there.</li>
+    <li>A deadpan caption changes how we read a picture. Type is never neutral.</li>
+    <li>Baldessari burned his early paintings in 1970 and started over. Iteration is part of studio culture.</li>
+  </ul>
+
+  <h3>Close</h3>
+  <ul>
+    <li>"If you liked making that, you'd like our first-year studio." Then hand over the program card or QR code to the inquiry form.</li>
+    <li>Ask permission before photographing a student's piece for social media.</li>
+  </ul>
+</section>
+
+<script src="stills.js"></script>
+<script>
+const SCHOOL = "College of Art and Design  ·  Graphic Design";   // edit for your event
+const COLORS = ["#e8322b", "#f6cf1d", "#1f5fbf", "#1f9a55", "#f07d1f"];
+const CAPTIONS = [
+  "This is not a selfie. It is a composition.", "A person who will not make boring art.",
+  "Future art student, partially obscured.", "The dot is more interesting than the face.",
+  "Something is hidden here. Good.", "A picture that has been improved.", "Portfolio piece no. 1",
+  "Identity: pending.", "I came to the table. I made a design.", "Color is a decision.",
+  "Everyone in this picture is important.", "What is graphic design? (Discuss.)",
+  "Look at the dot. Not at me.", "Remove the face, keep the story.",
+  "An ordinary photo, made strange.", "Composition with one red decision.",
+];
+
+document.querySelectorAll("[data-school]").forEach(e => e.textContent = SCHOOL);
+const stills = SCENES.map((_, i) => makeStill(i, 940));
+const src = i => stills[i].canvas.toDataURL("image/jpeg", .85);
+
+// sign: the handshake, already dotted
+const sp = document.getElementById("signPhoto");
+sp.innerHTML = `<img src="${src(0)}" alt="">`;
+stills[0].faces.forEach((f, i) => {
+  const d = document.createElement("span"); d.className = "dot"; const k = 100 / 940, r = f.r * 1.08;
+  Object.assign(d.style, { left: (f.x - r) * k + "%", top: (f.y - r) * k + "%", width: 2*r*k + "%", height: 2*r*k + "%", background: COLORS[i] });
+  sp.appendChild(d);
+});
+
+// cards
+const card = i => `<div class="card"><div class="row"><img src="${src(i)}" alt="${SCENES[i].name}">
+  <div class="lines"><span class="caps">Caption</span><i></i><i></i><i></i>
+  <p>Cover at least one face with a dot.<br>Write the caption in plain capital letters.<br>Sign it below.</p></div></div>
+  <div class="foot"><span class="caps">${SCHOOL}</span><span class="caps">Artist: ____________________</span></div></div>`;
+document.getElementById("cards1").innerHTML = card(0) + card(1);
+document.getElementById("cards2").innerHTML = card(2) + card(3);
+
+document.getElementById("slips").innerHTML = CAPTIONS.map(c => `<div>${c}</div>`).join("");
+</script>
+</body>
+</html>
