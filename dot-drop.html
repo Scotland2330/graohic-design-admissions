@@ -1,4 +1,4 @@
-<title>Dot Drop</title>
+<title>Dot Pop</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -78,8 +78,8 @@ button:focus-visible, input:focus-visible { outline: 4px solid var(--sun); outli
 .h1 { font-family: var(--display); color: var(--white); font-size: clamp(34px, 6vw, 62px); margin: 0; line-height: .95;
   text-shadow: 4px 4px 0 var(--ink); text-align: center; text-wrap: balance; }
 .sub { color: var(--white); font-weight: 700; font-size: 17px; margin: 0; text-align: center; max-width: 560px; }
-.machine { background: var(--sun); padding: 18px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px;
-  width: min(900px, 100%); }
+.machine { background: var(--sun); padding: 18px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px;
+  width: min(1040px, 100%); }
 .reel { background: var(--white); border: 4px solid var(--ink); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
 .reel .label { background: var(--ink); color: var(--white); padding: 7px 10px; }
 .reel .win { height: 170px; display: grid; place-items: center; padding: 10px; text-align: center; position: relative; }
@@ -115,7 +115,7 @@ button:focus-visible, input:focus-visible { outline: 4px solid var(--sun); outli
 #poster { display: block; border: 4px solid var(--ink); border-radius: 6px;
   box-shadow: var(--shadow); background: var(--white); touch-action: none; cursor: crosshair; }
 .tools { padding: 16px; display: flex; flex-direction: column; gap: 14px; overflow: auto; min-height: 0; }
-.toolrow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.toolrow { display: grid; grid-template-columns: repeat(auto-fit, minmax(64px, 1fr)); gap: 8px; }
 .tool { border: 3px solid var(--ink); border-radius: 14px; background: var(--white); padding: 10px 4px 8px; font-weight: 900; font-size: 13px;
   text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .tool svg { width: 30px; height: 30px; }
@@ -171,12 +171,6 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 34px; }
 #poster.thud { animation: thud .35s ease-out; }
 @keyframes thud { 20% { transform: translate(-6px, 5px); } 40% { transform: translate(6px, -4px); } 60% { transform: translate(-4px, 2px); } 80% { transform: translate(2px, -1px); } }
 
-/* film leader */
-#leader { position: fixed; inset: 0; z-index: 8; background: #c8c4ba; }
-#leader canvas { width: 100%; height: 100%; display: block; }
-.leader-info { position: absolute; left: 0; right: 0; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;
-  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-.leader-info span { background: var(--ink); color: var(--white); font-family: var(--display); font-size: clamp(16px, 2.4vw, 24px); padding: 8px 16px; border-radius: 999px; text-transform: uppercase; }
 .result { padding: 20px; display: flex; flex-direction: column; gap: 12px; overflow: auto; max-height: 100%; }
 .rank { background: var(--pink); color: var(--white); border: 3px solid var(--ink); border-radius: 12px; padding: 8px 12px; align-self: flex-start;
   font-family: var(--display); font-size: 22px; text-transform: uppercase; transform: rotate(-2deg); }
@@ -199,6 +193,33 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 34px; }
   box-shadow: 4px 4px 0 var(--ink); transition: transform .3s cubic-bezier(.2, 1.5, .4, 1), visibility .3s; white-space: nowrap; max-width: 92vw; overflow: hidden; text-overflow: ellipsis; }
 .toast.show { transform: translate(-50%, 0); visibility: visible; }
 
+/* artist inspo card */
+#inspo { position: fixed; inset: 0; z-index: 8; display: grid; place-items: center; overflow: hidden;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.inspo-bg { position: absolute; inset: 0; background: var(--white) center / cover no-repeat; }
+.inspo-bg.b { background-color: #77746e; filter: grayscale(1); }
+.inspo-bg i { position: absolute; border-radius: 50%; animation: pop .45s cubic-bezier(.2, 1.6, .4, 1) both; }
+.inspo-bg.c i { mix-blend-mode: multiply; }
+.inspo-bg em { position: absolute; font-family: var(--display); font-style: normal; mix-blend-mode: multiply; white-space: nowrap; line-height: 1;
+  animation: pop .5s cubic-bezier(.2, 1.6, .4, 1) both; }
+@keyframes pop { from { transform: scale(0) rotate(var(--r, 0deg)); } to { transform: scale(1) rotate(var(--r, 0deg)); } }
+.inspo-card { position: relative; width: min(640px, 100%); padding: 24px 26px; display: flex; flex-direction: column; gap: 10px;
+  animation: slamin .5s cubic-bezier(.2, 1.4, .4, 1) both .15s; }
+@keyframes slamin { from { transform: translateY(40px) scale(.9); opacity: 0; } to { transform: none; opacity: 1; } }
+.inspo-card h2 { font-family: var(--display); font-size: clamp(38px, 7vw, 64px); line-height: .92; margin: 0; text-transform: uppercase; text-wrap: balance; }
+.inspo-meta { font-weight: 900; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: #4a4a5c; }
+.inspo-line { margin: 4px 0 0; font-size: clamp(18px, 2.4vw, 22px); font-weight: 800; line-height: 1.25; text-wrap: pretty; }
+.inspo-both { margin: 0; background: var(--sun); border: 3px solid var(--ink); border-radius: 14px; padding: 10px 14px; font-size: 15px; font-weight: 700; line-height: 1.35; }
+.inspo-both b { display: block; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 2px; }
+.inspo-row { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-top: 4px; }
+.inspo-mission { font-family: var(--display); font-size: 17px; text-transform: uppercase; }
+.artists { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center; color: var(--white); font-weight: 800; }
+.artists span { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; opacity: .85; }
+.artists b { background: var(--white); color: var(--ink); border: 3px solid var(--ink); border-radius: 999px; padding: 4px 12px; font-size: 15px; }
+.artists i { font-style: normal; font-family: var(--display); font-size: 20px; }
+.reel .phrase { font-family: var(--display); font-size: clamp(20px, 2.5vw, 28px); line-height: .95; text-transform: uppercase; color: var(--ink);
+  background: linear-gradient(120deg, var(--sun), var(--pink)); padding: 10px 12px; border: 3px solid var(--ink); border-radius: 10px; transform: rotate(-3deg); }
+
 @media (max-width: 860px) {
   body { overflow: auto; }
   .screen { height: auto; min-height: 100%; }
@@ -208,7 +229,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 34px; }
   .gallery { height: auto; padding: 22px 18px; gap: 14px; }
   .frame img { max-height: 46vh; border-width: 10px; }
   .placard { align-self: stretch; width: auto; }
-  .machine { grid-template-columns: 1fr; }
+  .machine { grid-template-columns: 1fr 1fr; padding: 12px; gap: 10px; }
   .reel .win { height: auto; min-height: 120px; }
   .reel img { width: 90px; height: 90px; }
   .clock { font-size: 26px; min-width: 76px; }
@@ -222,17 +243,28 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 34px; }
 <button class="mute" id="muteBtn" aria-label="Sound on or off">SND</button>
 <canvas id="confetti"></canvas>
 <div class="toast" id="toast" role="status"></div>
-<div id="leader" hidden><canvas id="leaderCv"></canvas><div class="leader-info" id="leaderInfo"></div></div>
+<div id="inspo" hidden>
+  <div class="inspo-bg" id="inspoBg"></div>
+  <div class="inspo-card card">
+    <div class="label">Artist inspo</div>
+    <h2 id="inspoName"></h2>
+    <div class="inspo-meta" id="inspoMeta"></div>
+    <p class="inspo-line" id="inspoLine"></p>
+    <p class="inspo-both"><b>What they share</b><span id="inspoBoth"></span></p>
+    <div class="inspo-row"><span class="inspo-mission" id="inspoMission"></span><button class="btn go" id="inspoGo">Let's go <span id="inspoCount"></span></button></div>
+  </div>
+</div>
 
 <!-- TITLE -->
 <section class="screen" id="title">
-  <span class="kicker">The Baldessari art game</span>
-  <h1 class="logo">D<span class="o" style="background:var(--red)"></span>T<br>DR<span class="o" style="background:var(--sun)"></span>P</h1>
+  <span class="kicker">The remix art game</span>
+  <h1 class="logo">D<span class="o" style="background:var(--red)"></span>T<br>P<span class="o" style="background:var(--sun)"></span>P</h1>
   <div class="how">
-    <div><b style="background:var(--sun)">1</b>Spin for a picture + mission</div>
-    <div><b style="background:var(--red);color:var(--white)">2</b>45 seconds to dot it</div>
-    <div><b style="background:var(--mint)">3</b>Caption it. Score it. Keep it.</div>
+    <div><b style="background:var(--sun)">1</b>Spin for an artist + mission</div>
+    <div><b style="background:var(--red);color:var(--white)">2</b>45 seconds to make it</div>
+    <div><b style="background:var(--mint)">3</b>Caption it. See it in a gallery.</div>
   </div>
+  <div class="artists"><span>Starring</span><b>John Baldessari</b><i>+</i><b>Corita Kent</b></div>
   <button class="btn go start" id="startBtn">Press start</button>
   <div class="scores" id="scores"></div>
   <div class="credit" id="credit"></div>
@@ -241,15 +273,16 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 34px; }
 <!-- SPIN -->
 <section class="screen" id="spin" hidden>
   <h2 class="h1">Pull the chance machine</h2>
-  <p class="sub">Baldessari let chance make some of his choices. You get one found film still, one mission and one palette.</p>
+  <p class="sub">Both of today's artists let chance make some of their choices. You get an artist, your raw material, a mission and a palette.</p>
   <div class="machine card">
-    <div class="reel" id="reelPic"><div class="label">Picture</div><div class="win"></div></div>
+    <div class="reel" id="reelArt"><div class="label">Artist</div><div class="win"></div></div>
+    <div class="reel" id="reelMat"><div class="label">Material</div><div class="win"></div></div>
     <div class="reel" id="reelMis"><div class="label">Mission</div><div class="win"></div></div>
     <div class="reel" id="reelPal"><div class="label">Colors</div><div class="win"></div></div>
   </div>
   <div class="spin-row">
     <button class="btn sun" id="pullBtn">Pull!</button>
-    <button class="btn go" id="goBtn" hidden>Roll film!</button>
+    <button class="btn go" id="goBtn" hidden>Cue the artist inspo</button>
   </div>
 </section>
 
@@ -263,15 +296,11 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 34px; }
       <div><div class="t" id="missionT"></div><div class="p" id="missionP"></div></div>
     </div>
   </div>
-  <div class="stage"><canvas id="poster" width="1080" height="1350" aria-label="Your artwork. Tap to drop dots."></canvas></div>
+  <div class="stage"><canvas id="poster" width="1080" height="1350" aria-label="Your artwork. Tap to add shapes."></canvas></div>
   <div class="card tools">
-    <div class="toolrow" id="toolRow">
-      <button class="tool on" data-tool="dot"><svg viewBox="0 0 30 30"><circle cx="15" cy="15" r="11" fill="none" stroke="#0e0e14" stroke-width="3.5"/></svg>Dot</button>
-      <button class="tool" data-tool="bar"><svg viewBox="0 0 30 30"><rect x="3" y="9" width="24" height="12" fill="none" stroke="#0e0e14" stroke-width="3.5"/></svg>Bar</button>
-      <button class="tool" data-tool="erase"><svg viewBox="0 0 30 30"><path d="M7 7l16 16M23 7L7 23" stroke="#0e0e14" stroke-width="3.5"/></svg>Erase</button>
-    </div>
+    <div class="toolrow" id="toolRow"></div>
     <div><div class="label" style="margin-bottom:8px">Your palette</div><div class="swatches" id="swatches"></div></div>
-    <div><label class="label" for="size">Dot size</label><input type="range" id="size" min="24" max="260" value="96"></div>
+    <div><label class="label" for="size">Size</label><input type="range" id="size" min="24" max="260" value="96"></div>
     <div class="minirow">
       <button class="btn" id="undoBtn">Undo</button>
       <button class="btn pink" id="splatBtn">Splat!</button>
@@ -285,7 +314,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 34px; }
   <div class="stage"><img id="capPreview" alt="Your artwork so far"></div>
   <div class="card capcard">
     <h2>Caption roulette</h2>
-    <p>Baldessari's captions were flat and a little too literal. Spin one, or write your own for +50.</p>
+    <p id="capHint"></p>
     <div class="capslot" id="capSlot"></div>
     <div class="minirow">
       <button class="btn sun" id="rollBtn">Spin caption</button>
@@ -335,6 +364,59 @@ const CONFIG = {
 };
 
 const C = { red: "#ff2d3d", sun: "#ffd60a", cobalt: "#2b3dff", mint: "#00cf7f", pink: "#ff4fc3", orange: "#ff7a1a", sky: "#35c4ff", white: "#ffffff", ink: "#0e0e14" };
+
+/* Two artists. Each brings its own materials, palettes, missions, captions and talking points. */
+const ARTISTS = {
+  b: {
+    name: "John Baldessari", meta: "1931–2020 · Southern California · Conceptual artist",
+    line: "He stuck bright price-tag dots over faces in old movie stills, so you'd look at everything else in the picture.",
+    medium: "Pigment dots on found film still", capHint: "Baldessari's captions were flat and a little too literal. Spin one, or write your own for +50.",
+    splat: "Splat!", bonusLabel: "Faces hidden", meters: ["Bold", "Mystery", "Chaos"],
+  },
+  c: {
+    name: "Corita Kent", meta: "1918–1986 · Los Angeles · Printmaker and teacher",
+    line: "An art teacher and nun who turned grocery ads and road signs into neon-bright screenprints about hope and joy.",
+    medium: "Screenprint-style layers on paper", capHint: "Corita paired loud, borrowed ad words with a small, hopeful message. Spin one, or write your own for +50.",
+    splat: "Remix!", bonusLabel: "Ad words used", meters: ["Bold", "Layers", "Loud"],
+  },
+};
+const BOTH = "Both made art in 1960s Southern California by grabbing images and words from everyday life and remixing them. That's the heart of graphic design.";
+
+// borrowed "ad words" for Corita rounds
+const PHRASES = ["Power up", "New and improved", "Try it today", "Feel the glow", "Made fresh daily", "Open late",
+  "All new you", "Limited time only", "Now with more joy", "Big bright deal", "Satisfaction guaranteed", "Good things inside"];
+
+const C_PALETTES = [
+  { name: "Sunshine pop", colors: [C.sun, C.pink, C.sky] },
+  { name: "Fruit stand",  colors: [C.orange, C.red, C.sun] },
+  { name: "Pool party",   colors: [C.sky, C.mint, C.pink] },
+  { name: "Candy shop",   colors: [C.pink, C.sun, C.mint] },
+  { name: "Everything",   colors: [C.sun, C.pink, C.sky, C.orange, C.mint, C.red] },
+];
+
+const C_CAPTIONS = [
+  "Consider everything an experiment.",
+  "Notice the ordinary. It's waiting.",
+  "Joy is a design decision.",
+  "Read the signs. Then remix them.",
+  "Everything is material.",
+  "Make something loud today.",
+  "Words are shapes too.",
+  "Small words, big feelings.",
+  "Hope, in high contrast.",
+  "Love the everyday.",
+  "Bright on purpose.",
+  "Say it bigger.",
+];
+
+const C_TALK = [
+  "Corita Kent borrowed words from ads, like a gas station's \"Power Up,\" and gave them a new meaning. Designers call that recontextualizing.",
+  "She designed the 1985 \"Love\" postage stamp for the U.S. Postal Service. Graphic design can travel through millions of mailboxes.",
+  "Her rainbow swash on a Boston gas tank (1971) is still a local landmark. Big type and color work at the scale of a city.",
+  "One of her classroom rules was \"Consider everything an experiment.\" Studio classes still run on that idea.",
+  "Overlapping see-through colors makes new colors. Screen printers and digital designers both use it; in design software it's called multiply.",
+  "Big, cropped, tilted type is a classic poster move. In graphic design, type can be the picture.",
+];
 
 const PALETTES = [
   { name: "Primary school", colors: [C.red, C.sun, C.cobalt] },
@@ -554,19 +636,31 @@ const STILLS = SCENES.map((sc, i) => {
    Missions: each is a design brief with a live check
    ========================================================= */
 const MISSIONS = [
-  { t: "Hide every face", d: "Not one face left showing.", faces: true,
+  { t: "Overlap party", d: "Layer colors so 12% of the art is overlapping.", a: "c",
+    check: s => { const o = sample().overlap; return [o >= .12, `${Math.round(o * 100)}% layered`]; } },
+  { t: "Use every word", d: "Get every word of your ad onto the art.", a: "c",
+    check: s => { const used = wordsUsed(), all = phraseWords().length; return [used >= all, `${used} / ${all} words placed`]; } },
+  { t: "Go huge", d: "Make one word fill most of the width.", a: "c",
+    check: s => { const m = Math.max(0, ...s.shapes.filter(x => x.type === "word").map(x => x.w)); return [m >= PW * .75, `Biggest word: ${Math.round(m / PW * 100)}% wide`]; } },
+  { t: "Off the edge", d: "Let a word run right off the edge, like Corita did.", a: "c",
+    check: s => { const n = s.shapes.filter(x => x.type === "word" && (x.x - x.w / 2 < 0 || x.x + x.w / 2 > PW || x.y - x.h / 2 < 0 || x.y + x.h / 2 > PW)).length; return [n >= 1, n ? "A word is bleeding off the edge" : "No words off the edge yet"]; } },
+  { t: "Fill it up", d: "Cover 60% of the paper with color and words.", a: "c",
+    check: s => { const c = sample().cov; return [c >= .6, `${Math.round(c * 100)}% covered`]; } },
+  { t: "Loud and layered", d: "Stack up 10 or more layers.", a: "c",
+    check: s => [s.shapes.length >= 10, `${s.shapes.length} / 10 layers`] },
+  { a: "b", t: "Hide every face", d: "Not one face left showing.", faces: true,
     check: s => { const n = s.faces.filter(f => covered(f)).length; return [n === s.faces.length, `${n} of ${s.faces.length} faces hidden`]; } },
-  { t: "Only one survives", d: "Hide every face but one.", faces: true, min: 3,
+  { a: "b", t: "Only one survives", d: "Hide every face but one.", faces: true, min: 3,
     check: s => { const n = s.faces.filter(f => !covered(f)).length; return [n === 1, `${n} faces still showing`]; } },
-  { t: "Exactly three", d: "Use exactly 3 dots. No more, no less.",
+  { a: "b", t: "Exactly three", d: "Use exactly 3 dots. No more, no less.",
     check: s => { const n = s.shapes.filter(x => x.type === "dot").length; return [n === 3, `${n} / 3 dots`]; } },
-  { t: "Go giant", d: "Make one dot bigger than half the picture.",
+  { a: "b", t: "Go giant", d: "Make one dot bigger than half the picture.",
     check: s => { const m = Math.max(0, ...s.shapes.filter(x => x.type === "dot").map(x => x.r * 2)); return [m >= PW / 2, `Biggest dot: ${Math.round(m / PW * 100)}% wide`]; } },
-  { t: "Cover half", d: "Cover at least half of the picture.",
+  { a: "b", t: "Cover half", d: "Cover at least half of the picture.",
     check: s => { const c = coverage(); return [c >= .5, `${Math.round(c * 100)}% covered`]; } },
-  { t: "Make a pattern", d: "Drop 12 or more shapes.",
+  { a: "b", t: "Make a pattern", d: "Drop 12 or more shapes.",
     check: s => [s.shapes.length >= 12, `${s.shapes.length} / 12 shapes`] },
-  { t: "Faces stay, world goes", d: "Cover 35% of the picture without touching a face.", faces: true,
+  { a: "b", t: "Faces stay, world goes", d: "Cover 35% of the picture without touching a face.", faces: true,
     check: s => { const c = coverage(), hit = s.faces.some(f => covered(f)); return [c >= .35 && !hit, hit ? "Oops, a face is covered" : `${Math.round(c * 100)}% covered, faces clear`]; } },
 ];
 
@@ -579,6 +673,7 @@ const W = 1080, H = 1350, PX = 70, PY = 70;
 const poster = $("#poster"), ctx = poster.getContext("2d");
 
 const S = {
+  artist: "b", phrase: "", wordIdx: 0, overlapPrev: 0,
   photo: null, photoName: "", faces: [],
   mission: MISSIONS[0], palette: PALETTES[0],
   shapes: [], tool: "dot", color: C.red, size: 96,
@@ -629,6 +724,10 @@ const pick = a => a[Math.floor(Math.random() * a.length)];
 
 function inShape(x, y, s) {
   if (s.type === "dot") return Math.hypot(x - s.x, y - s.y) <= s.r;
+  if (s.type === "word") {
+    const dx = x - s.x, dy = y - s.y, c = Math.cos(s.rot), n = Math.sin(s.rot);
+    return Math.abs(dx * c + dy * n) <= s.w / 2 && Math.abs(-dx * n + dy * c) <= s.h / 2;
+  }
   const x0 = Math.min(s.x, s.x + s.w), y0 = Math.min(s.y, s.y + s.h);
   return x >= x0 && x <= x0 + Math.abs(s.w) && y >= y0 && y <= y0 + Math.abs(s.h);
 }
@@ -638,11 +737,20 @@ function covered(f) {
   const hits = pts.filter(([dx, dy]) => S.shapes.some(s => inShape(f.x + dx * f.r, f.y + dy * f.r, s))).length;
   return hits >= 4;
 }
-function coverage() {
-  let n = 0, tot = 0;
-  for (let y = 10; y < PW; y += 20) for (let x = 10; x < PW; x += 20) { tot++; if (S.shapes.some(s => inShape(x, y, s))) n++; }
-  return n / tot;
+// sample the art on a grid: how much is covered, and how much has 2+ different colors stacked
+function sample() {
+  let n = 0, o = 0, tot = 0;
+  for (let y = 10; y < PW; y += 20) for (let x = 10; x < PW; x += 20) {
+    tot++;
+    const cols = new Set(S.shapes.filter(s => inShape(x, y, s)).map(s => s.color));
+    if (cols.size) n++; if (cols.size > 1) o++;
+  }
+  return { cov: n / tot, overlap: o / tot };
 }
+function coverage() { return sample().cov; }
+const phraseWords = () => S.phrase.toUpperCase().split(/\s+/);
+const wordsUsed = () => new Set(S.shapes.filter(s => s.type === "word").map(s => s.text)).size;
+const WORD_FONT = sz => `${sz}px "Bowlby One", Impact, sans-serif`;
 
 /* =========================================================
    Background field + title
@@ -666,13 +774,29 @@ function drawTitle() {
 /* =========================================================
    Spin screen
    ========================================================= */
+const ART_THUMBS = {};
+function artistThumbs() {
+  const mk = draw => { const c = document.createElement("canvas"); c.width = c.height = 240; draw(c.getContext("2d")); return c.toDataURL("image/png"); };
+  ART_THUMBS.b = mk(g => {
+    g.drawImage(STILLS[0].canvas, 0, 0, 240, 240);
+    STILLS[0].faces.forEach((f, i) => { g.fillStyle = [C.red, C.sun][i % 2]; g.beginPath(); g.arc(f.x * 240 / PW, f.y * 240 / PW, f.r * 1.1 * 240 / PW, 0, Math.PI * 2); g.fill(); });
+  });
+  ART_THUMBS.c = mk(g => {
+    g.fillStyle = "#fffaf0"; g.fillRect(0, 0, 240, 240); g.globalCompositeOperation = "multiply";
+    [[70, 80, 70, C.sun], [150, 100, 80, C.pink], [110, 170, 70, C.sky]].forEach(([x, y, r, c]) => { g.fillStyle = c; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); });
+    g.fillStyle = C.red; g.translate(120, 130); g.rotate(-.18); g.font = WORD_FONT(64); g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("POWER", 0, -30); g.fillText("UP!", 0, 34);
+  });
+}
+function reelArt(a) { return `<div><img src="${ART_THUMBS[a]}" alt=""><div class="name">${ARTISTS[a].name}</div></div>`; }
+function reelMat(m) { return m.thumb ? reelPic(m) : `<div class="phrase">${m}</div>`; }
 function reelPic(still) {
   return `<div><img src="${still.thumb}" alt=""><div class="name">${still.name}</div></div>`;
 }
 function reelMis(m) { return `<div><div class="mission">${m.t}</div><div class="mdesc">${m.d}</div></div>`; }
 function reelPal(p) { return `<div><div class="chips">${p.colors.map(c => `<i style="background:${c}"></i>`).join("")}</div><div class="name" style="margin-top:8px">${p.name}</div></div>`; }
 
-function missionsFor(faces) { return MISSIONS.filter(m => (!m.faces || faces.length) && (!m.min || faces.length >= m.min)); }
+function missionsFor(a, faces) { return MISSIONS.filter(m => m.a === a && (!m.faces || faces.length) && (!m.min || faces.length >= m.min)); }
+const palettesFor = a => a === "c" ? C_PALETTES : PALETTES;
 
 function spinReel(el, render, items, stopAt, final) {
   return new Promise(res => {
@@ -691,14 +815,17 @@ let spinning = false;
 async function pull() {
   if (spinning) return; spinning = true;
   $("#pullBtn").disabled = true; $("#goBtn").hidden = true;
-  const still = pick(STILLS);
-  S.photo = still.canvas; S.photoName = still.name; S.faces = still.faces;
-  S.mission = pick(missionsFor(S.faces));
-  S.palette = pick(PALETTES);
-  const pics = spinReel($("#reelPic"), reelPic, STILLS, 900, still);
-  await Promise.all([pics,
-    spinReel($("#reelMis"), reelMis, missionsFor(S.faces), 1500, S.mission),
-    spinReel($("#reelPal"), reelPal, PALETTES, 2100, S.palette)]);
+  S.artist = pick(["b", "c"]);
+  let mat;
+  if (S.artist === "b") { const still = pick(STILLS); S.photo = still.canvas; S.photoName = still.name; S.faces = still.faces; S.phrase = ""; mat = still; }
+  else { S.photo = null; S.photoName = ""; S.faces = []; S.phrase = pick(PHRASES); mat = S.phrase; }
+  S.mission = pick(missionsFor(S.artist, S.faces));
+  S.palette = pick(palettesFor(S.artist));
+  await Promise.all([
+    spinReel($("#reelArt"), reelArt, ["b", "c"], 800, S.artist),
+    spinReel($("#reelMat"), reelMat, [...STILLS, ...PHRASES], 1300, mat),
+    spinReel($("#reelMis"), reelMis, MISSIONS, 1800, S.mission),
+    spinReel($("#reelPal"), reelPal, [...PALETTES, ...C_PALETTES], 2300, S.palette)]);
   spinning = false;
   $("#goBtn").hidden = false;
   $("#pullBtn").textContent = S.respins > 0 ? "Respin (1 left)" : "No respins left";
@@ -714,9 +841,17 @@ function render(g = ctx, now = performance.now()) {
   g.fillStyle = C.white; g.fillRect(0, 0, W, H);
   g.save(); g.beginPath(); g.rect(PX, PY, PW, PW); g.clip();
   if (S.photo) g.drawImage(S.photo, PX, PY);
+  else { g.fillStyle = "#fffaf0"; g.fillRect(PX, PY, PW, PW); }
   for (const s of S.shapes) {
     g.fillStyle = s.color;
-    if (s.type === "dot") {
+    g.globalCompositeOperation = s.blend || "source-over";
+    if (s.type === "word") {
+      const a = s.anim ? dropFrame(s, now) : { dy: 0, sx: 1, sy: 1 };
+      g.save(); g.translate(PX + s.x, PY + s.y + a.dy + s.h / 2 * (1 - a.sy)); g.rotate(s.rot); g.scale(a.sx, a.sy);
+      g.font = WORD_FONT(s.size); g.textAlign = "center"; g.textBaseline = "middle";
+      g.fillText(s.text, 0, s.size * .04); g.restore();
+    }
+    else if (s.type === "dot") {
       const a = s.anim ? dropFrame(s, now) : null;
       g.beginPath();
       if (a) g.ellipse(PX + s.x, PY + s.y + a.dy + s.r * (1 - a.sy), s.r * a.sx, s.r * a.sy, 0, 0, Math.PI * 2);
@@ -729,6 +864,7 @@ function render(g = ctx, now = performance.now()) {
     }
     else g.fillRect(PX + Math.min(s.x, s.x + s.w), PY + Math.min(s.y, s.y + s.h), Math.abs(s.w), Math.abs(s.h));
   }
+  g.globalCompositeOperation = "source-over";
   g.restore();
 
   // caption in plain heavy caps, like a sign painter's
@@ -751,12 +887,28 @@ function render(g = ctx, now = performance.now()) {
   const fy = H - 44;
   g.fillStyle = C.ink; g.fillRect(PX, fy - 42, PW, 4);
   g.font = `800 21px Archivo, "Helvetica Neue", Arial, sans-serif`; g.textBaseline = "alphabetic"; g.textAlign = "left";
-  g.fillText(`${CONFIG.school}  ·  ${CONFIG.program}`.toUpperCase(), PX, fy);
+  g.fillText(CONFIG.school.toUpperCase(), PX, fy);
   g.textAlign = "right";
-  g.fillText(`DOT DROP NO. ${String(S.edition).padStart(4, "0")}`, PX + PW, fy);
+  g.fillText(`AFTER ${ARTISTS[S.artist].name.toUpperCase()}  ·  NO. ${String(S.edition).padStart(4, "0")}`, PX + PW, fy);
   g.textAlign = "left";
 }
 
+const ICON = {
+  dot: '<circle cx="15" cy="15" r="11" fill="none" stroke="#0e0e14" stroke-width="3.5"/>',
+  bar: '<rect x="3" y="9" width="24" height="12" fill="none" stroke="#0e0e14" stroke-width="3.5"/>',
+  erase: '<path d="M7 7l16 16M23 7L7 23" stroke="#0e0e14" stroke-width="3.5"/>',
+  word: '<path d="M6 24L15 5l9 19M9.5 17h11" fill="none" stroke="#0e0e14" stroke-width="3.5" stroke-linejoin="round"/>',
+  blob: '<circle cx="12" cy="13" r="8" fill="none" stroke="#0e0e14" stroke-width="3"/><circle cx="19" cy="18" r="8" fill="none" stroke="#0e0e14" stroke-width="3"/>',
+  band: '<path d="M3 20c6-10 18-10 24 0" fill="none" stroke="#0e0e14" stroke-width="6" stroke-linecap="round"/>',
+};
+const TOOLS = { b: [["dot", "Dot"], ["bar", "Bar"], ["erase", "Erase"]], c: [["word", "Word"], ["blob", "Blob"], ["band", "Band"], ["erase", "Erase"]] };
+function setTools() {
+  $("#toolRow").innerHTML = TOOLS[S.artist].map(([k, label], i) =>
+    `<button class="tool${i ? "" : " on"}" data-tool="${k}"><svg viewBox="0 0 30 30">${ICON[k]}</svg>${label}</button>`).join("");
+  $$(".tool").forEach(b => b.onclick = () => { S.tool = b.dataset.tool; $$(".tool").forEach(x => x.classList.toggle("on", x === b)); sfx.tick(); });
+  S.tool = TOOLS[S.artist][0][0];
+  $("#splatBtn").textContent = ARTISTS[S.artist].splat;
+}
 function setPalette() {
   $("#swatches").innerHTML = "";
   S.palette.colors.forEach((c, i) => {
@@ -774,7 +926,7 @@ function score() {
   const mission = S.missionDone ? 250 : 0;
   const time = S.missionDone ? Math.max(0, Math.round(S.timeLeft)) * 5 : 0;
   const caption = S.custom ? 50 : 0;
-  const faces = S.faces.filter(f => covered(f)).length * 15;
+  const faces = (S.artist === "b" ? S.faces.filter(f => covered(f)).length : wordsUsed()) * 15;
   const combo = S.bestCombo >= 3 ? S.bestCombo * 15 : 0;
   return { shapes, colors, faces, combo, mission, time, caption, total: shapes + colors + faces + combo + mission + time + caption };
 }
@@ -794,7 +946,7 @@ function startBuild() {
   S.combo = 0; S.bestCombo = 0; S.lastDrop = 0; S.hiddenCount = 0;
   setPalette();
   $("#missionT").textContent = S.mission.t;
-  $$(".tool").forEach((b, i) => b.classList.toggle("on", i === 0)); S.tool = "dot";
+  setTools(); S.wordIdx = 0; S.overlapPrev = 0;
   show("build"); fitPoster(); render(); updateMission();
   S.timeLeft = CONFIG.buildSeconds; S.t0 = performance.now();
   clearInterval(S.timer);
@@ -814,36 +966,38 @@ function endBuild() {
   updateMission();
   startCaption();
 }
-$("#goBtn").onclick = () => filmLeader().then(startBuild);
+$("#goBtn").onclick = () => inspo().then(startBuild);
 
-// old-cinema countdown leader: sweeping wedge, crosshair, flicker, grain
-function filmLeader() {
+// artist inspo card: who the artist is, what both artists share, then go
+let inspoTimer = null;
+function inspo() {
   return new Promise(done => {
-    const ov = $("#leader"), lc = $("#leaderCv"), g = lc.getContext("2d");
-    ov.hidden = false;
-    const dpr = Math.min(2, devicePixelRatio || 1);
-    lc.width = innerWidth * dpr; lc.height = innerHeight * dpr;
-    const w = lc.width, h = lc.height, R0 = Math.min(w, h) * .36, t0 = performance.now(), STEP = 850;
-    let lastN = 4;
-    $("#leaderInfo").innerHTML = `<span>Scene: ${S.photoName}</span><span>Mission: ${S.mission.t}</span>`;
-    (function f(now) {
-      const t = now - t0, n = 3 - Math.floor(t / STEP), k = (t % STEP) / STEP;
-      if (n < 1) { ov.hidden = true; done(); return; }
-      if (n !== lastN) { sfx.beep(); lastN = n; }
-      const flick = .9 + Math.random() * .1;
-      g.fillStyle = `rgb(${200*flick|0},${196*flick|0},${186*flick|0})`; g.fillRect(0, 0, w, h);
-      g.fillStyle = `rgba(30,28,26,.55)`;
-      g.beginPath(); g.moveTo(w/2, h/2); g.arc(w/2, h/2, Math.hypot(w, h), -Math.PI/2, -Math.PI/2 + k * Math.PI * 2); g.closePath(); g.fill();
-      g.strokeStyle = "#1a1917"; g.lineWidth = 5 * dpr;
-      g.beginPath(); g.moveTo(0, h/2); g.lineTo(w, h/2); g.moveTo(w/2, 0); g.lineTo(w/2, h); g.stroke();
-      g.lineWidth = 7 * dpr;
-      [R0, R0 * .82].forEach(r => { g.beginPath(); g.arc(w/2, h/2, r, 0, Math.PI * 2); g.stroke(); });
-      g.fillStyle = "#1a1917"; g.font = `${R0 * 1.15}px "Bowlby One", Impact, sans-serif`; g.textAlign = "center"; g.textBaseline = "middle";
-      g.fillText(n, w/2, h/2 + R0 * .06);
-      for (let i = 0; i < 260; i++) { g.fillStyle = Math.random() < .5 ? "rgba(0,0,0,.35)" : "rgba(255,255,255,.35)"; g.fillRect(Math.random() * w, Math.random() * h, 2 * dpr, 2 * dpr); }
-      if (Math.random() < .5) { g.fillStyle = "rgba(0,0,0,.4)"; g.fillRect(Math.random() * w, 0, 1.5 * dpr, h); }
-      requestAnimationFrame(f);
-    })(t0);
+    const A = ARTISTS[S.artist], bg = $("#inspoBg");
+    $("#inspoName").textContent = A.name; $("#inspoMeta").textContent = A.meta;
+    $("#inspoLine").textContent = A.line; $("#inspoBoth").textContent = BOTH;
+    $("#inspoMission").textContent = "Mission: " + S.mission.t;
+    bg.className = "inspo-bg " + S.artist; bg.innerHTML = "";
+    if (S.artist === "b") {
+      bg.style.backgroundImage = `url(${STILLS.find(x => x.canvas === S.photo).thumb})`;
+      const k = Math.max(innerWidth, innerHeight) / PW, ox = (innerWidth - PW * k) / 2, oy = (innerHeight - PW * k) / 2;
+      bg.style.filter = "none";
+      S.faces.forEach((f, n) => bg.insertAdjacentHTML("beforeend",
+        `<i style="left:${ox + (f.x - f.r * 1.1) * k}px;top:${oy + (f.y - f.r * 1.1) * k}px;width:${f.r * 2.2 * k}px;height:${f.r * 2.2 * k}px;background:${S.palette.colors[n % S.palette.colors.length]};animation-delay:${300 + n * 90}ms"></i>`));
+    } else {
+      bg.style.backgroundImage = "none";
+      const cols = S.palette.colors;
+      for (let n = 0; n < 7; n++) { const r = 18 + Math.random() * 22;
+        bg.insertAdjacentHTML("beforeend", `<i style="left:${Math.random() * 90 - 10}vw;top:${Math.random() * 90 - 10}vh;width:${r}vmax;height:${r}vmax;background:${cols[n % cols.length]};animation-delay:${n * 80}ms"></i>`); }
+      phraseWords().forEach((w, n) => bg.insertAdjacentHTML("beforeend",
+        `<em style="left:${5 + Math.random() * 50}vw;top:${8 + n * 26}vh;font-size:${14 + Math.random() * 8}vmin;color:${cols[(n + 1) % cols.length]};--r:${(Math.random() * 24 - 12).toFixed(1)}deg;animation-delay:${400 + n * 120}ms">${w}</em>`));
+    }
+    $("#inspo").hidden = false; sfx.ding();
+    let left = 7;
+    $("#inspoCount").textContent = left;
+    const finish = () => { clearInterval(inspoTimer); $("#inspo").hidden = true; done(); };
+    clearInterval(inspoTimer);
+    inspoTimer = setInterval(() => { left--; $("#inspoCount").textContent = left; if (left <= 3 && left > 0) sfx.beep(); if (left <= 0) finish(); }, 1000);
+    $("#inspoGo").onclick = finish;
   });
 }
 $("#doneBtn").onclick = () => { if (!S.shapes.length) return toast("Drop at least one dot first."); endBuild(); };
@@ -860,6 +1014,11 @@ addEventListener("resize", () => { if (!$("#build").hidden) fitPoster(); });
 function pt(e) {
   const r = poster.getBoundingClientRect();
   return { x: (e.clientX - r.left) / r.width * W - PX, y: (e.clientY - r.top) / r.height * H - PY };
+}
+function makeWord(text, x, y, size, color) {
+  ctx.font = WORD_FONT(size);
+  return { type: "word", text, x, y, size, color, blend: "multiply", rot: (Math.random() * 28 - 14) * Math.PI / 180,
+    w: ctx.measureText(text).width, h: size * .82, r: size * .45 };
 }
 function hit(p) { for (let i = S.shapes.length - 1; i >= 0; i--) if (inShape(p.x, p.y, S.shapes[i])) return i; return -1; }
 // a dot falls from the top of the picture, squashes on impact and throws a shockwave
@@ -895,6 +1054,11 @@ function landed(s) {
   const hidden = S.faces.filter(f => covered(f)).length;
   if (hidden > S.hiddenCount) popup(s.x, s.y + s.r * .5, hidden - S.hiddenCount > 1 ? `${hidden - S.hiddenCount} FACES GONE!` : "FACE GONE!", "face");
   S.hiddenCount = hidden;
+  if (S.artist === "c") {
+    const o = sample().overlap;
+    if (o > S.overlapPrev + .01) popup(s.x, s.y + s.r * .5, "LAYERED!", "face");
+    S.overlapPrev = o;
+  }
   updateMission();
 }
 // floating points over the poster
@@ -916,12 +1080,19 @@ poster.addEventListener("pointerdown", e => {
   const i = hit(p);
   if (S.tool === "erase") { if (i >= 0) { S.shapes.splice(i, 1); sfx.erase(); render(); S.hiddenCount = S.faces.filter(f => covered(f)).length; updateMission(); } return; }
   if (i >= 0) { const s = S.shapes[i]; drag = { mode: "move", s, dx: p.x - s.x, dy: p.y - s.y }; return; }
-  if (S.tool === "dot") {
+  if (S.tool === "word") {
+    const s = makeWord(phraseWords()[S.wordIdx++ % phraseWords().length], p.x, p.y, S.size * 1.25 + 30, S.color);
+    S.shapes.push(s); drag = { mode: "move", s, dx: 0, dy: 0, fresh: true }; dropIn(s);
+    return;
+  }
+  if (S.tool === "dot" || S.tool === "blob") {
     const s = { type: "dot", x: p.x, y: p.y, r: S.size / 2 + 8, color: S.color };
+    if (S.tool === "blob") { s.blend = "multiply"; s.r *= 1.3; }
     S.shapes.push(s); drag = { mode: "move", s, dx: 0, dy: 0, fresh: true }; dropIn(s);
     return;
   } else {
     const s = { type: "bar", x: p.x, y: p.y, w: 1, h: 1, color: S.color };
+    if (S.tool === "band") s.blend = "multiply";
     S.shapes.push(s); drag = { mode: "bar", s }; sfx.pop();
   }
   render(); updateMission();
@@ -944,14 +1115,16 @@ const endDrag = () => {
 poster.addEventListener("pointerup", endDrag);
 poster.addEventListener("pointercancel", endDrag);
 
-$$(".tool").forEach(b => b.onclick = () => { S.tool = b.dataset.tool; $$(".tool").forEach(x => x.classList.toggle("on", x === b)); sfx.tick(); });
 $("#size").oninput = e => S.size = +e.target.value;
 $("#undoBtn").onclick = () => { if (S.shapes.pop()) { sfx.erase(); render(); S.hiddenCount = S.faces.filter(f => covered(f)).length; updateMission(); } };
 // chance move: throw a handful of dots
+// chance move: throw a handful of shapes (dots for Baldessari; blobs and ad words for Corita)
 $("#splatBtn").onclick = () => {
-  const n = 5 + (Math.random() * 4 | 0);
+  const n = 5 + (Math.random() * 4 | 0), rx = () => 60 + Math.random() * (PW - 120);
   for (let k = 0; k < n; k++) setTimeout(() => {
-    const s = { type: "dot", x: 60 + Math.random() * (PW - 120), y: 60 + Math.random() * (PW - 120), r: 20 + Math.random() * 90, color: pick(S.palette.colors) };
+    let s;
+    if (S.artist === "c" && k % 3 === 0) s = makeWord(phraseWords()[S.wordIdx++ % phraseWords().length], rx(), rx(), 90 + Math.random() * 200, pick(S.palette.colors));
+    else { s = { type: "dot", x: rx(), y: rx(), r: 20 + Math.random() * 90, color: pick(S.palette.colors) }; if (S.artist === "c") { s.blend = "multiply"; s.r *= 1.6; } }
     S.shapes.push(s); dropIn(s);
   }, k * 90);
 };
@@ -959,9 +1132,11 @@ $("#splatBtn").onclick = () => {
 /* =========================================================
    Caption screen
    ========================================================= */
+const capsFor = () => S.artist === "c" ? C_CAPTIONS : CAPTIONS;
 function startCaption() {
   S.spinsLeft = 3; S.custom = false; $("#capIn").value = "";
-  S.caption = pick(CAPTIONS);
+  S.caption = pick(capsFor());
+  $("#capHint").textContent = ARTISTS[S.artist].capHint;
   render(); $("#capPreview").src = poster.toDataURL("image/jpeg", .85);
   $("#capSlot").textContent = S.caption;
   $("#capBonus").textContent = "Spins left: 3";
@@ -974,7 +1149,7 @@ $("#rollBtn").onclick = () => {
   const slot = $("#capSlot"); slot.classList.add("rolling");
   let n = 0;
   const iv = setInterval(() => {
-    slot.textContent = pick(CAPTIONS); sfx.tick();
+    slot.textContent = pick(capsFor()); sfx.tick();
     if (++n > 12) { clearInterval(iv); S.caption = slot.textContent; slot.classList.remove("rolling"); sfx.land(); }
   }, 60 + n * 4);
   $("#capBonus").textContent = S.spinsLeft ? `Spins left: ${S.spinsLeft}` : "No spins left. Lock it in or write your own.";
@@ -993,6 +1168,13 @@ $("#lockBtn").onclick = reveal;
    ========================================================= */
 function escapeHtml(t) { return t.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]); }
 function rankFor(cov, mystery, colors, n) {
+  if (S.artist === "c") {
+    if (wordsUsed() >= phraseWords().length && phraseWords().length > 1) return "Word Wrangler";
+    if (sample().overlap >= .2) return "Layer Legend";
+    if (colors >= 4) return "Color Riot";
+    if (cov >= .6) return "Joy Machine";
+    return pick(["Pop Prophet", "Sign Painter Supreme", "Headline Hero"]);
+  }
   if (n <= 3) return "The Minimalist";
   if (mystery >= 1 && S.faces.length) return "Master of Mystery";
   if (colors >= 4) return "Chromatic Troublemaker";
@@ -1005,21 +1187,22 @@ function reveal() {
   S.final = poster.toDataURL("image/png");
   $("#finalImg").src = S.final;
   const sc = score(), cov = coverage();
-  const mystery = S.faces.length ? S.faces.filter(f => covered(f)).length / S.faces.length : Math.min(1, cov * 1.5);
+  const mystery = S.artist === "c" ? sample().overlap * 4 : S.faces.length ? S.faces.filter(f => covered(f)).length / S.faces.length : Math.min(1, cov * 1.5);
   const colors = new Set(S.shapes.map(s => s.color)).size;
   $("#rank").textContent = rankFor(cov, mystery, colors, S.shapes.length);
   $("#breakdown").innerHTML = [
-    ["Shapes", sc.shapes], ["Color range", sc.colors], ["Faces hidden", sc.faces], [`Best combo x${S.bestCombo}`, sc.combo],
+    ["Shapes", sc.shapes], ["Color range", sc.colors], [ARTISTS[S.artist].bonusLabel, sc.faces], [`Best combo x${S.bestCombo}`, sc.combo],
     [S.missionDone ? `Mission: ${S.mission.t}` : "Mission missed", sc.mission],
     ["Time bonus", sc.time], ["Own caption", sc.caption],
   ].map(([k, v]) => `<div><span>${k}</span><span>+${v}</span></div>`).join("");
-  $("#meters").innerHTML = [["Bold", cov * 1.6, C.red], ["Mystery", mystery, C.cobalt], ["Chaos", S.shapes.length / 16, C.pink]]
+  const [m1, m2, m3] = ARTISTS[S.artist].meters;
+  $("#meters").innerHTML = [[m1, cov * 1.6, C.red], [m2, mystery, C.cobalt], [m3, S.shapes.length / 16, C.pink]]
     .map(([k, v, c]) => `<div class="meter">${k.toUpperCase()}<span><b data-w="${Math.round(Math.min(1, v) * 100)}" style="background:${c}"></b></span></div>`).join("");
   requestAnimationFrame(() => requestAnimationFrame(() => $$(".meter b").forEach(b => b.style.width = b.dataset.w + "%")));
-  $("#talk").innerHTML = `<b>Talk about it</b>${pick(TALK)}`;
+  $("#talk").innerHTML = `<b>Talk about it</b>${pick(S.artist === "c" ? C_TALK : TALK)}`;
   $("#initIn").value = ""; $("#saveScoreBtn").disabled = false; $("#saveScoreBtn").textContent = "Save score";
   const yr = new Date().getFullYear();
-  $("#placard").innerHTML = `<b>Untitled (${escapeHtml(S.caption.replace(/[.]$/, ""))}), ${yr}</b>Pigment dots on found film still, ${S.photoName.toLowerCase()}<br>${S.shapes.length} shapes, made in ${Math.max(1, Math.round(CONFIG.buildSeconds - S.timeLeft))} seconds<small>Dot Drop no. ${String(S.edition).padStart(4, "0")} · ${CONFIG.school}</small>`;
+  $("#placard").innerHTML = `<b>Untitled (${escapeHtml(S.caption.replace(/[.]$/, ""))}), ${yr}</b>${ARTISTS[S.artist].medium}, ${S.artist === "c" ? `words borrowed from “${escapeHtml(S.phrase)}”` : S.photoName.toLowerCase()}<br>After ${ARTISTS[S.artist].name} · ${S.shapes.length} shapes, made in ${Math.max(1, Math.round(CONFIG.buildSeconds - S.timeLeft))} seconds<small>Dot Pop no. ${String(S.edition).padStart(4, "0")} · ${CONFIG.school}</small>`;
   $("#bigScore").textContent = "0";
   $("#gallery").classList.remove("lit");
   show("reveal");
@@ -1046,7 +1229,7 @@ let downloads = null;
 $("#saveBtn").onclick = async () => {
   if (!S.final) return;
   const blob = await (await fetch(S.final)).blob();
-  const name = `dot-drop-${String(S.edition).padStart(4, "0")}.png`;
+  const name = `dot-pop-${String(S.edition).padStart(4, "0")}.png`;
   if (downloads) {
     try { await downloads.save({ filename: name, data: blob }); toast("Saved!"); return; }
     catch (err) { if (err?.code === "declined") return; }
@@ -1083,7 +1266,7 @@ function goTitle() {
 function goSpin() {
   S.respins = 1; S.faces = []; S.photo = null;
   $("#pullBtn").textContent = "Pull!"; $("#pullBtn").disabled = false; $("#goBtn").hidden = true;
-  ["#reelPic", "#reelMis", "#reelPal"].forEach(r => { $(r).classList.remove("landed"); $(r + " .win").innerHTML = '<div class="mission" style="opacity:.25">?</div>'; });
+  ["#reelArt", "#reelMat", "#reelMis", "#reelPal"].forEach(r => { $(r).classList.remove("landed"); $(r + " .win").innerHTML = '<div class="mission" style="opacity:.25">?</div>'; });
   show("spin");
 }
 $("#startBtn").onclick = () => { sfx.ding(); goSpin(); };
@@ -1096,6 +1279,7 @@ setInterval(() => {
   if (Date.now() - lastAct > CONFIG.idleSeconds * 1000) goTitle();
 }, 2000);
 
-(document.fonts?.ready || Promise.resolve()).then(() => render());
+(document.fonts?.ready || Promise.resolve()).then(() => { render(); artistThumbs(); });
+artistThumbs();
 goTitle();
 </script>

@@ -1,6 +1,6 @@
 # Dot Drop / Put a Dot On It: Baldessari activities
 
-**`dot-drop.html` is the main activity:** an arcade-style art game for high schoolers. Spin the chance machine for a found film still, a mission and a palette; a film-leader countdown rolls; dots drop in with combos and points in 45 seconds; spin a caption; then the poster is revealed under a spotlight in a gallery with a museum label, score and artist type. No photos of visitors are used. Edit `CONFIG`, `PALETTES`, `CAPTIONS` and `MISSIONS` at the top of its script.
+**`dot-drop.html` is the main activity: Dot Pop**, an arcade-style remix art game for high schoolers. The chance machine picks an artist (John Baldessari or Corita Kent), the material (a found film still or a borrowed ad slogan), a mission and a palette. An "artist inspo" card teaches a one-liner about the artist and what the two share, then players have 45 seconds to make the piece: dots that drop onto faces for Baldessari, layered see-through color and big tilted ad words for Corita. After a caption spin, the poster is revealed under a spotlight in a gallery with a museum label, score and artist type. No photos of visitors are used. Edit `CONFIG`, `ARTISTS`, `PHRASES`, the palettes, `MISSIONS` and the caption lists at the top of its script.
 
 The calmer kiosk version and the paper kit are described below.
 
