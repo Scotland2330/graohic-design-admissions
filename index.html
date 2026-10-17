@@ -2,602 +2,1301 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>Dot Your Face — Baldessari Booth</title>
-<style>
-  /* ---------- Edit these for your event ---------- */
-  :root {
-    --red:    #e8322b;
-    --yellow: #f6cf1d;
-    --blue:   #1f5fbf;
-    --green:  #1f9a55;
-    --orange: #f07d1f;
-    --white:  #ffffff;
-    --ink:    #111111;
-    --paper:  #f4f1ea;
-    --line:   #111111;
-  }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; height: 100%; background: var(--paper); color: var(--ink);
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; overscroll-behavior: none; }
-  body { user-select: none; -webkit-user-select: none; touch-action: manipulation; }
-  button { font: inherit; color: inherit; cursor: pointer; }
-  .caps { text-transform: uppercase; letter-spacing: .02em; }
-
-  /* ---------- Attract screen ---------- */
-  #attract { position: fixed; inset: 0; display: grid; place-items: center; overflow: hidden;
-    background: var(--paper); z-index: 20; cursor: pointer; }
-  #attract.hidden { display: none; }
-  .wall { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 18px; padding: 18px; opacity: .35; filter: grayscale(.2); pointer-events: none; }
-  .wall img { width: 100%; aspect-ratio: 4/5; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,.2);
-    background: #fff; }
-  .hero { position: relative; text-align: center; padding: 24px; max-width: 980px; }
-  .hero-photo { position: relative; width: min(64vw, 420px, 42vh); aspect-ratio: 1; margin: 0 auto 28px;
-    background: #222 url() center/cover; border: 14px solid #fff; box-shadow: 0 10px 30px rgba(0,0,0,.25); overflow: hidden; }
-  .hero-photo canvas { width: 100%; height: 100%; display: block; }
-  .hero-dot { position: absolute; border-radius: 50%; animation: pop .5s cubic-bezier(.2,1.6,.4,1) both; }
-  @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
-  .hero h1 { font-size: clamp(34px, 6.4vw, 76px); line-height: .95; margin: 0 0 14px; font-weight: 900;
-    text-transform: uppercase; letter-spacing: -.01em; }
-  .hero p { font-size: clamp(16px, 2.2vw, 22px); margin: 0 0 26px; }
-  .start { background: var(--ink); color: #fff; border: 0; padding: 22px 44px; font-size: clamp(20px, 3vw, 28px);
-    font-weight: 800; text-transform: uppercase; letter-spacing: .04em; border-radius: 999px; }
-  .start .dot { display: inline-block; width: .8em; height: .8em; border-radius: 50%; background: var(--red);
-    vertical-align: -.08em; margin-right: .4em; }
-  .tagline { position: absolute; bottom: 10px; left: 0; right: 0; text-align: center; font-size: 13px;
-    letter-spacing: .14em; text-transform: uppercase; opacity: .7; }
-
-  /* ---------- Studio ---------- */
-  #studio { display: grid; grid-template-columns: minmax(0, 1fr) 380px; height: 100%; }
-  .stage { display: grid; place-items: center; padding: 18px; min-height: 0; position: relative; }
-  #poster { max-width: 100%; max-height: calc(100vh - 36px); aspect-ratio: 4/5; background: #fff;
-    box-shadow: 0 10px 34px rgba(0,0,0,.22); touch-action: none; display: block; }
-  .panel { background: #fff; border-left: 3px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
-  .steps { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 3px solid var(--line); }
-  .steps button { border: 0; background: #fff; padding: 12px 4px; font-size: 13px; font-weight: 800;
-    text-transform: uppercase; letter-spacing: .05em; border-right: 1px solid #ddd; }
-  .steps button:last-child { border-right: 0; }
-  .steps button span { display: block; font-size: 22px; line-height: 1; margin-bottom: 2px; }
-  .steps button.on { background: var(--ink); color: #fff; }
-  .timer { height: 8px; background: #eee; }
-  .timer i { display: block; height: 100%; width: 100%; background: var(--red); transform-origin: left; }
-  .pane { display: none; padding: 20px; overflow: auto; flex: 1; }
-  .pane.on { display: block; }
-  .pane h2 { margin: 0 0 4px; font-size: 26px; font-weight: 900; text-transform: uppercase; line-height: 1; }
-  .pane .hint { margin: 0 0 16px; font-size: 15px; color: #444; }
-  .big { width: 100%; border: 3px solid var(--line); background: #fff; padding: 16px; font-size: 18px; font-weight: 800;
-    text-transform: uppercase; letter-spacing: .03em; border-radius: 14px; margin-bottom: 10px; text-align: left;
-    display: flex; align-items: center; gap: 12px; }
-  .big:active { transform: translateY(1px); }
-  .big.primary { background: var(--ink); color: #fff; }
-  .big .ico { width: 30px; height: 30px; border-radius: 50%; flex: none; }
-  .scenes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 6px 0 12px; }
-  .scenes button { border: 3px solid transparent; padding: 0; background: #ddd; aspect-ratio: 1; border-radius: 10px; overflow: hidden; }
-  .scenes button.on { border-color: var(--red); }
-  .scenes img { width: 100%; height: 100%; display: block; object-fit: cover; }
-  .label { font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; margin: 14px 0 8px; }
-  .swatches { display: flex; gap: 10px; flex-wrap: wrap; }
-  .swatch { width: 52px; height: 52px; border-radius: 50%; border: 3px solid #ccc; }
-  .swatch.on { border-color: var(--ink); box-shadow: 0 0 0 3px #fff inset; }
-  .tools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .tool { border: 3px solid var(--line); background: #fff; border-radius: 12px; padding: 10px 4px; font-weight: 800;
-    font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
-  .tool svg { display: block; margin: 0 auto 4px; }
-  .tool.on { background: var(--ink); color: #fff; }
-  .tool.on svg * { stroke: #fff; }
-  input[type=range] { width: 100%; height: 36px; accent-color: var(--ink); }
-  .row { display: flex; gap: 8px; }
-  .row .big { flex: 1; justify-content: center; text-align: center; font-size: 15px; padding: 12px; }
-  .captions { display: grid; gap: 8px; }
-  .captions button { border: 2px solid #ccc; background: #fff; border-radius: 10px; padding: 12px; text-align: left;
-    font-weight: 800; text-transform: uppercase; font-size: 15px; line-height: 1.15; }
-  .captions button.on { border-color: var(--ink); background: var(--yellow); }
-  textarea { width: 100%; border: 3px solid var(--line); border-radius: 12px; padding: 12px; font: 800 18px/1.2 inherit;
-    text-transform: uppercase; resize: none; }
-  .done-art { font-size: 15px; margin: 0 0 16px; }
-  .toast { position: fixed; left: 50%; top: 24px; transform: translateX(-50%); background: var(--ink); color: #fff;
-    padding: 12px 20px; border-radius: 999px; font-weight: 800; opacity: 0; transition: opacity .25s; pointer-events: none; z-index: 40; }
-  .toast.show { opacity: 1; }
-
-  /* camera overlay */
-  #cam { position: fixed; inset: 0; background: #000; z-index: 30; display: none; place-items: center; }
-  #cam.on { display: grid; }
-  #cam video { width: min(90vw, 90vh); aspect-ratio: 1; object-fit: cover; transform: scaleX(-1); background: #111; }
-  #cam .count { position: absolute; font-size: 30vmin; font-weight: 900; color: #fff; text-shadow: 0 4px 20px rgba(0,0,0,.5); }
-  #cam .bar { position: absolute; bottom: 24px; display: flex; gap: 12px; }
-  #cam .bar button { border: 0; border-radius: 999px; padding: 16px 28px; font-weight: 900; font-size: 20px; text-transform: uppercase; }
-  #cam .shoot { background: var(--red); color: #fff; }
-  #cam .flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; transition: opacity .4s; }
-
-  @media (max-width: 860px) {
-    #studio { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: auto; min-height: 100%; }
-    #poster { max-height: 58vh; }
-    .panel { border-left: 0; border-top: 3px solid var(--line); }
-  }
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- Generated from dot-drop.html by build-standalone.py. Edit dot-drop.html, not this file. -->
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
+<title>Dot Pop</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=Archivo:wght@500;700;800;900&display=swap">
+<style>
+/* Layout: one-screen arcade cabinet. Cobalt field with drifting giant dots; white "game cards" with
+   thick ink outlines and hard offset shadows. One game, five screens: title → spin → build → caption → reveal. */
+:root {
+  --cobalt: #2b3dff;
+  --ink:    #0e0e14;
+  --white:  #ffffff;
+  --red:    #ff2d3d;
+  --sun:    #ffd60a;
+  --mint:   #00cf7f;
+  --pink:   #ff4fc3;
+  --orange: #ff7a1a;
+  --sky:    #35c4ff;
+  --soft:   #e9ebff;
+  --display: "Bowlby One", "Arial Black", Impact, sans-serif;
+  --body: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --shadow: 6px 6px 0 var(--ink);
+  color-scheme: light;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--cobalt); color: var(--ink); font-family: var(--body); overflow: hidden;
+  user-select: none; -webkit-user-select: none; touch-action: manipulation; overscroll-behavior: none; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 4px solid var(--sun); outline-offset: 3px; }
 
-<!-- ============ ATTRACT SCREEN ============ -->
-<section id="attract" aria-label="Start">
-  <div class="wall" id="wall"></div>
-  <div class="hero">
-    <div class="hero-photo" id="heroPhoto"></div>
-    <h1>Put a dot<br>on it.</h1>
-    <p>A 60-second graphic design challenge, after John Baldessari.<br>Cover. Caption. Call it art.</p>
-    <button class="start" id="startBtn"><span class="dot"></span>Make one</button>
-  </div>
-  <div class="tagline" id="tagline"></div>
-</section>
+/* drifting background dots */
+.field { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.field i { position: absolute; border-radius: 50%; opacity: .9; animation: drift 18s ease-in-out infinite alternate; }
+@keyframes drift { to { transform: translate(var(--dx), var(--dy)) scale(1.08); } }
 
-<!-- ============ STUDIO ============ -->
-<main id="studio">
-  <div class="stage"><canvas id="poster" width="1080" height="1350" aria-label="Your poster"></canvas></div>
+.screen { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column;
+  padding-block: 14px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.card { background: var(--white); border: 4px solid var(--ink); border-radius: 20px; box-shadow: var(--shadow); }
+.btn { border: 4px solid var(--ink); border-radius: 999px; background: var(--white); box-shadow: 4px 4px 0 var(--ink);
+  font-family: var(--display); font-size: 20px; padding: 12px 22px; text-transform: uppercase; letter-spacing: .02em;
+  transition: transform .08s, box-shadow .08s; }
+.btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--ink); }
+.btn.go { background: var(--red); color: var(--white); }
+.btn.sun { background: var(--sun); }
+.btn.mint { background: var(--mint); }
+.btn.pink { background: var(--pink); color: var(--white); }
+.btn[disabled] { opacity: .45; pointer-events: none; }
+.label { font-weight: 900; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
+.mute { position: fixed; z-index: 5; top: calc(10px + env(safe-area-inset-top, 0px)); right: max(12px, env(safe-area-inset-right, 0px));
+  width: 46px; height: 46px; border-radius: 50%; border: 3px solid var(--ink); background: var(--white); font-weight: 900; font-size: 12px; }
 
-  <aside class="panel">
-    <div class="steps" id="steps">
-      <button data-step="0" class="on"><span>1</span>Picture</button>
-      <button data-step="1"><span>2</span>Cover</button>
-      <button data-step="2"><span>3</span>Caption</button>
-      <button data-step="3"><span>4</span>Done</button>
-    </div>
-    <div class="timer"><i id="timerBar"></i></div>
+/* ---------- title ---------- */
+#title { align-items: center; justify-content: center; gap: 22px; text-align: center; overflow: auto; }
+.logo { font-family: var(--display); color: var(--white); font-size: clamp(64px, 15vw, 168px); line-height: .82; margin: 0;
+  text-shadow: 6px 6px 0 var(--ink); letter-spacing: -.01em; }
+.logo .o { display: inline-block; width: .74em; height: .74em; border-radius: 50%; border: .06em solid var(--ink);
+  vertical-align: -.02em; box-shadow: .05em .05em 0 var(--ink); animation: bob 1.6s ease-in-out infinite; }
+.logo .o:nth-of-type(2) { animation-delay: .3s; }
+@keyframes bob { 50% { transform: translateY(-.08em) scale(1.06); } }
+.kicker { display: inline-block; background: var(--sun); border: 3px solid var(--ink); border-radius: 999px; padding: 6px 16px;
+  font-weight: 900; text-transform: uppercase; letter-spacing: .08em; font-size: clamp(13px, 1.8vw, 17px); transform: rotate(-2deg); }
+.how { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; max-width: 760px; }
+.how div { background: var(--white); border: 3px solid var(--ink); border-radius: 16px; padding: 10px 14px; font-weight: 800;
+  font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.how b { font-family: var(--display); font-weight: 400; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+  border: 3px solid var(--ink); font-size: 15px; }
+.start { font-size: clamp(24px, 3.4vw, 34px); padding: 18px 46px; animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 50% { transform: scale(1.05); } }
+.scores { color: var(--white); font-weight: 800; font-size: 15px; display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; }
+.scores span { opacity: .95; }
+.scores em { font-style: normal; color: var(--sun); font-family: var(--display); margin-right: 6px; }
+.credit { color: var(--white); opacity: .85; font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
 
-    <!-- Step 1 -->
-    <section class="pane on" data-pane="0">
-      <h2>Pick a picture</h2>
-      <p class="hint">Baldessari started with ordinary photos. Use yours, or a "found" film still.</p>
-      <button class="big primary" id="camBtn"><span class="ico" style="background:var(--red)"></span>Take my photo</button>
-      <div class="label">Or a found film still</div>
-      <div class="scenes" id="scenes"></div>
-      <button class="big" id="chanceBtn"><span class="ico" style="background:var(--yellow)"></span>Let chance decide</button>
-      <input type="file" id="fileIn" accept="image/*" capture="user" hidden>
-    </section>
+/* ---------- spin ---------- */
+#spin { align-items: center; justify-content: center; gap: 18px; overflow: auto; }
+.h1 { font-family: var(--display); color: var(--white); font-size: clamp(34px, 6vw, 62px); margin: 0; line-height: .95;
+  text-shadow: 4px 4px 0 var(--ink); text-align: center; text-wrap: balance; }
+.sub { color: var(--white); font-weight: 700; font-size: 17px; margin: 0; text-align: center; max-width: 560px; }
+.machine { background: var(--sun); padding: 18px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px;
+  width: min(1040px, 100%); }
+.reel { background: var(--white); border: 4px solid var(--ink); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+.reel .label { background: var(--ink); color: var(--white); padding: 7px 10px; }
+.reel .win { height: 170px; display: grid; place-items: center; padding: 10px; text-align: center; position: relative; }
+.reel.spinning .win > * { filter: blur(1.5px); }
+.reel img { width: 120px; height: 120px; object-fit: cover; border: 3px solid var(--ink); border-radius: 8px; display: block; margin: 0 auto 4px; }
+.reel .name { font-weight: 900; text-transform: uppercase; font-size: 14px; }
+.reel .mission { font-family: var(--display); font-size: clamp(17px, 2.3vw, 24px); line-height: 1.02; text-transform: uppercase; }
+.reel .mdesc { font-size: 13px; font-weight: 700; margin-top: 6px; color: #3a3a48; }
+.chips { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.chips i { width: 44px; height: 44px; border-radius: 50%; border: 3px solid var(--ink); display: block; }
+.reel.landed .win { animation: land .35s ease-out; }
+@keyframes land { 0% { background: var(--sun); } 100% { background: var(--white); } }
+.spin-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
 
-    <!-- Step 2 -->
-    <section class="pane" data-pane="1">
-      <h2>Cover it up</h2>
-      <p class="hint">Tap to drop a dot. Drag to move it. Hide what everyone expects to see.</p>
-      <div class="tools" id="tools">
-        <button class="tool on" data-tool="dot"><svg width="30" height="30"><circle cx="15" cy="15" r="11" fill="none" stroke="#111" stroke-width="3"/></svg>Dot</button>
-        <button class="tool" data-tool="bar"><svg width="30" height="30"><rect x="3" y="9" width="24" height="12" fill="none" stroke="#111" stroke-width="3"/></svg>Bar</button>
-        <button class="tool" data-tool="erase"><svg width="30" height="30"><path d="M6 6l18 18M24 6L6 24" stroke="#111" stroke-width="3"/></svg>Erase</button>
-      </div>
-      <div class="label">Color</div>
-      <div class="swatches" id="swatches"></div>
-      <div class="label">Size</div>
-      <input type="range" id="size" min="30" max="220" value="95">
-      <div class="row" style="margin-top:12px">
-        <button class="big" id="undoBtn">Undo</button>
-        <button class="big" id="autoBtn">Dot all faces</button>
-      </div>
-      <div class="row">
-        <button class="big" id="bwBtn">Color photo</button>
-        <button class="big" id="clearBtn">Clear</button>
-      </div>
-      <button class="big primary" data-go="2" style="justify-content:center">Next: caption →</button>
-    </section>
+/* ---------- build ---------- */
+#build { display: grid; grid-template-columns: minmax(0, 1fr) 340px; grid-template-rows: auto minmax(0, 1fr); gap: 14px; }
+.hud { grid-column: 1 / -1; display: flex; gap: 12px; align-items: stretch; flex-wrap: wrap; }
+.hud .card { padding: 8px 14px; display: flex; align-items: center; gap: 10px; }
+.clock { font-family: var(--display); font-size: 34px; min-width: 96px; justify-content: center; font-variant-numeric: tabular-nums; }
+.clock.hurry { background: var(--red); color: var(--white); animation: shake .3s linear infinite; }
+@keyframes shake { 25% { transform: rotate(-2deg); } 75% { transform: rotate(2deg); } }
+.scorebox { font-family: var(--display); font-size: 28px; font-variant-numeric: tabular-nums; }
+.scorebox small { font-family: var(--body); font-weight: 900; font-size: 11px; letter-spacing: .14em; margin-right: 6px; }
+.missionbox { flex: 1; min-width: 220px; }
+.missionbox .t { font-family: var(--display); font-size: 19px; line-height: 1; text-transform: uppercase; }
+.missionbox .p { font-weight: 800; font-size: 13px; color: #3a3a48; }
+.missionbox .tick { width: 40px; height: 40px; border-radius: 50%; border: 3px solid var(--ink); flex: none; display: grid; place-items: center;
+  font-family: var(--display); font-size: 18px; background: var(--soft); }
+.missionbox.done { background: var(--mint); }
+.missionbox.done .tick { background: var(--white); }
+.missionbox.done .p { color: var(--ink); }
+.stage { display: grid; place-items: center; min-height: 0; min-width: 0; height: 100%; }
+#poster { display: block; border: 4px solid var(--ink); border-radius: 6px;
+  box-shadow: var(--shadow); background: var(--white); touch-action: none; cursor: crosshair; }
+.tools { padding: 16px; display: flex; flex-direction: column; gap: 14px; overflow: auto; min-height: 0; }
+.toolrow { display: grid; grid-template-columns: repeat(auto-fit, minmax(64px, 1fr)); gap: 8px; }
+.tool { border: 3px solid var(--ink); border-radius: 14px; background: var(--white); padding: 10px 4px 8px; font-weight: 900; font-size: 13px;
+  text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.tool svg { width: 30px; height: 30px; }
+.tool.on { background: var(--ink); color: var(--white); }
+.tool.on svg * { stroke: var(--white); }
+.swatches { display: flex; gap: 10px; flex-wrap: wrap; }
+.swatch { width: 54px; height: 54px; border-radius: 50%; border: 4px solid var(--ink); transition: transform .1s; }
+.swatch.on { transform: scale(1.12); box-shadow: 0 0 0 4px var(--white), 0 0 0 7px var(--ink); }
+input[type=range] { width: 100%; accent-color: var(--ink); height: 34px; }
+.minirow { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.minirow .btn { font-size: 15px; padding: 10px; }
 
-    <!-- Step 3 -->
-    <section class="pane" data-pane="2">
-      <h2>Say it plainly</h2>
-      <p class="hint">Baldessari's captions are flat, deadpan, a little too literal. Pick one or write your own.</p>
-      <textarea id="capIn" rows="2" maxlength="70" placeholder="TYPE YOUR OWN…"></textarea>
-      <div class="row" style="margin-top:8px"><button class="big" id="shuffleBtn">Shuffle ↻</button></div>
-      <div class="captions" id="captions"></div>
-      <button class="big primary" data-go="3" style="justify-content:center;margin-top:12px">Finish it →</button>
-    </section>
+/* ---------- caption ---------- */
+#caption { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 420px); gap: 18px; align-items: center; }
+#caption .stage img { max-width: 100%; max-height: calc(100vh - 40px); border: 4px solid var(--ink); border-radius: 6px; box-shadow: var(--shadow); display: block; }
+.capcard { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.capcard h2 { font-family: var(--display); font-size: 32px; margin: 0; line-height: .95; text-transform: uppercase; }
+.capcard p { margin: 0; font-weight: 600; font-size: 15px; }
+.capslot { background: var(--ink); color: var(--white); border-radius: 14px; padding: 18px; min-height: 110px; display: grid; place-items: center;
+  font-family: var(--body); font-weight: 900; font-size: 22px; text-transform: uppercase; line-height: 1.08; text-align: center; }
+.capslot.rolling { color: var(--sun); }
+#capIn { width: 100%; border: 4px solid var(--ink); border-radius: 14px; padding: 12px 14px; font: 900 18px/1.2 var(--body);
+  text-transform: uppercase; background: var(--white); color: var(--ink); }
+#capIn::placeholder { color: #8a8a99; }
+.bonus { font-size: 13px; font-weight: 800; color: #3a3a48; }
 
-    <!-- Step 4 -->
-    <section class="pane" data-pane="3">
-      <h2>It's art now.</h2>
-      <p class="done-art" id="doneNote"></p>
-      <button class="big primary" id="shareBtn"><span class="ico" style="background:var(--blue)"></span>Send it to my phone</button>
-      <button class="big" id="saveBtn"><span class="ico" style="background:var(--green)"></span>Save image</button>
-      <button class="big" id="againBtn"><span class="ico" style="background:var(--orange)"></span>Next artist</button>
-      <div class="label">Talking point</div>
-      <p class="hint" id="talkPoint"></p>
-    </section>
-  </aside>
-</main>
+/* ---------- reveal ---------- */
+#reveal { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 420px); gap: 18px; align-items: center; }
+/* the gallery: a dark wall, a spotlight that clicks on, a framed print and a museum label */
+.gallery { position: relative; width: 100%; height: 100%; min-height: 0; border: 4px solid var(--ink); border-radius: 20px; box-shadow: var(--shadow);
+  background: linear-gradient(#1b1b24 0 82%, #121218 82%); overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px; }
+.gallery .spot { position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  background: radial-gradient(ellipse 42% 62% at 50% 34%, rgba(255, 244, 214, .62), rgba(255, 244, 214, .14) 55%, transparent 75%),
+              linear-gradient(to bottom, rgba(255, 244, 214, .0) 0 82%, rgba(255, 244, 214, .12) 82%); }
+.gallery.lit .spot { animation: lightson .5s steps(1) forwards; }
+@keyframes lightson { 0% { opacity: 1; } 15% { opacity: .2; } 30% { opacity: 1; } 45% { opacity: .5; } 60%, 100% { opacity: 1; } }
+.frame { position: relative; background: #0b0b0d; padding: 12px; box-shadow: 0 28px 50px rgba(0, 0, 0, .7); opacity: .12; transition: opacity .2s; max-height: 100%; }
+.gallery.lit .frame { opacity: 1; transition-delay: .1s; }
+.frame img { display: block; max-width: 100%; max-height: calc(100vh - 210px); border: 14px solid #f6f6f2; }
+.placard { position: relative; align-self: flex-end; width: 260px; max-width: 100%; background: #f6f6f2; color: var(--ink); padding: 10px 12px; font-size: 11px;
+  line-height: 1.35; box-shadow: 0 6px 14px rgba(0, 0, 0, .5); opacity: 0; transform: translateY(8px); transition: opacity .4s .7s, transform .4s .7s; }
+.placard b { display: block; font-size: 12px; margin-bottom: 3px; }
+.placard small { display: block; margin-top: 5px; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: #55556a; }
+.gallery.lit .placard { opacity: 1; transform: none; }
 
-<!-- ============ CAMERA ============ -->
-<div id="cam">
-  <video id="video" playsinline muted></video>
-  <div class="count" id="count"></div>
-  <div class="flash" id="flash"></div>
-  <div class="bar">
-    <button class="cancel" id="camCancel">Cancel</button>
-    <button class="shoot" id="camShoot">Snap (3…2…1)</button>
+/* drop feedback */
+.pts { position: fixed; z-index: 5; transform: translate(-50%, -50%); pointer-events: none; font-family: var(--display); font-size: 26px; color: var(--white);
+  -webkit-text-stroke: 2px var(--ink); paint-order: stroke fill; text-shadow: 3px 3px 0 var(--ink); animation: rise .95s ease-out forwards; white-space: nowrap; }
+.pts.combo { font-size: 38px; color: var(--sun); }
+.pts.face { font-size: 30px; color: var(--mint); }
+@keyframes rise { 0% { transform: translate(-50%, -20%) scale(.5); opacity: 0; } 20% { transform: translate(-50%, -60%) scale(1.15); opacity: 1; }
+  100% { transform: translate(-50%, -190%) scale(1); opacity: 0; } }
+#poster.thud { animation: thud .35s ease-out; }
+@keyframes thud { 20% { transform: translate(-6px, 5px); } 40% { transform: translate(6px, -4px); } 60% { transform: translate(-4px, 2px); } 80% { transform: translate(2px, -1px); } }
+
+.result { padding: 20px; display: flex; flex-direction: column; gap: 12px; overflow: auto; max-height: 100%; }
+.rank { background: var(--pink); color: var(--white); border: 3px solid var(--ink); border-radius: 12px; padding: 8px 12px; align-self: flex-start;
+  font-family: var(--display); font-size: 22px; text-transform: uppercase; transform: rotate(-2deg); }
+.big-score { font-family: var(--display); font-size: 64px; line-height: 1; font-variant-numeric: tabular-nums; }
+.breakdown { display: grid; gap: 4px; font-weight: 800; font-size: 14px; }
+.breakdown div { display: flex; justify-content: space-between; border-bottom: 2px dotted #c6c8dc; padding-bottom: 3px; }
+.meters { display: grid; gap: 8px; }
+.meter { display: grid; grid-template-columns: 82px 1fr; align-items: center; gap: 8px; font-weight: 900; font-size: 12px; letter-spacing: .1em; }
+.meter span { height: 18px; border: 3px solid var(--ink); border-radius: 999px; overflow: hidden; background: var(--soft); }
+.meter b { display: block; height: 100%; width: 0; transition: width 1s cubic-bezier(.2, .9, .3, 1); }
+.initials { display: flex; gap: 8px; align-items: center; }
+#initIn { width: 110px; border: 4px solid var(--ink); border-radius: 12px; padding: 8px; font: 400 26px var(--display); text-align: center;
+  text-transform: uppercase; letter-spacing: .12em; background: var(--white); color: var(--ink); }
+.talk { background: var(--soft); border-radius: 12px; padding: 10px 12px; font-size: 14px; font-weight: 600; line-height: 1.35; }
+.talk b { display: block; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 2px; }
+#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 4; width: 100%; height: 100%; }
+
+.toast { position: fixed; z-index: 6; left: 50%; top: calc(16px + env(safe-area-inset-top, 0px)); transform: translate(-50%, calc(-100% - 40px)); visibility: hidden;
+  background: var(--sun); border: 4px solid var(--ink); border-radius: 999px; padding: 10px 22px; font-family: var(--display); font-size: 20px;
+  box-shadow: 4px 4px 0 var(--ink); transition: transform .3s cubic-bezier(.2, 1.5, .4, 1), visibility .3s; white-space: nowrap; max-width: 92vw; overflow: hidden; text-overflow: ellipsis; }
+.toast.show { transform: translate(-50%, 0); visibility: visible; }
+
+/* artist inspo card */
+#inspo { position: fixed; inset: 0; z-index: 8; display: grid; place-items: center; overflow: hidden;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.inspo-bg { position: absolute; inset: 0; background: var(--white) center / cover no-repeat; }
+.inspo-bg.b { background-color: #77746e; filter: grayscale(1); }
+.inspo-bg i { position: absolute; border-radius: 50%; animation: pop .45s cubic-bezier(.2, 1.6, .4, 1) both; }
+.inspo-bg.c i { mix-blend-mode: multiply; }
+.inspo-bg em { position: absolute; font-family: var(--display); font-style: normal; mix-blend-mode: multiply; white-space: nowrap; line-height: 1;
+  animation: pop .5s cubic-bezier(.2, 1.6, .4, 1) both; }
+@keyframes pop { from { transform: scale(0) rotate(var(--r, 0deg)); } to { transform: scale(1) rotate(var(--r, 0deg)); } }
+.inspo-card { position: relative; width: min(640px, 100%); padding: 24px 26px; display: flex; flex-direction: column; gap: 10px;
+  animation: slamin .5s cubic-bezier(.2, 1.4, .4, 1) both .15s; }
+@keyframes slamin { from { transform: translateY(40px) scale(.9); opacity: 0; } to { transform: none; opacity: 1; } }
+.inspo-card h2 { font-family: var(--display); font-size: clamp(38px, 7vw, 64px); line-height: .92; margin: 0; text-transform: uppercase; text-wrap: balance; }
+.inspo-meta { font-weight: 900; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: #4a4a5c; }
+.inspo-line { margin: 4px 0 0; font-size: clamp(18px, 2.4vw, 22px); font-weight: 800; line-height: 1.25; text-wrap: pretty; }
+.inspo-both { margin: 0; background: var(--sun); border: 3px solid var(--ink); border-radius: 14px; padding: 10px 14px; font-size: 15px; font-weight: 700; line-height: 1.35; }
+.inspo-both b { display: block; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 2px; }
+.inspo-row { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-top: 4px; }
+.inspo-mission { font-family: var(--display); font-size: 17px; text-transform: uppercase; }
+.artists { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center; color: var(--white); font-weight: 800; }
+.artists span { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; opacity: .85; }
+.artists b { background: var(--white); color: var(--ink); border: 3px solid var(--ink); border-radius: 999px; padding: 4px 12px; font-size: 15px; }
+.artists i { font-style: normal; font-family: var(--display); font-size: 20px; }
+.reel .phrase { font-family: var(--display); font-size: clamp(20px, 2.5vw, 28px); line-height: .95; text-transform: uppercase; color: var(--ink);
+  background: linear-gradient(120deg, var(--sun), var(--pink)); padding: 10px 12px; border: 3px solid var(--ink); border-radius: 10px; transform: rotate(-3deg); }
+
+@media (max-width: 860px) {
+  body { overflow: auto; }
+  .screen { height: auto; min-height: 100%; }
+  #build, #caption, #reveal { grid-template-columns: 1fr; grid-template-rows: auto; }
+  #build .stage { height: 58vh; }
+  #caption .stage img { max-height: 46vh; }
+  .gallery { height: auto; padding: 22px 18px; gap: 14px; }
+  .frame img { max-height: 46vh; border-width: 10px; }
+  .placard { align-self: stretch; width: auto; }
+  .machine { grid-template-columns: 1fr 1fr; padding: 12px; gap: 10px; }
+  .reel .win { height: auto; min-height: 120px; }
+  .reel img { width: 90px; height: 90px; }
+  .clock { font-size: 26px; min-width: 76px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+
+<div class="field" id="field" aria-hidden="true"></div>
+<button class="mute" id="muteBtn" aria-label="Sound on or off">SND</button>
+<canvas id="confetti"></canvas>
+<div class="toast" id="toast" role="status"></div>
+<div id="inspo" hidden>
+  <div class="inspo-bg" id="inspoBg"></div>
+  <div class="inspo-card card">
+    <div class="label">Artist inspo</div>
+    <h2 id="inspoName"></h2>
+    <div class="inspo-meta" id="inspoMeta"></div>
+    <p class="inspo-line" id="inspoLine"></p>
+    <p class="inspo-both"><b>What they share</b><span id="inspoBoth"></span></p>
+    <div class="inspo-row"><span class="inspo-mission" id="inspoMission"></span><button class="btn go" id="inspoGo">Let's go <span id="inspoCount"></span></button></div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- TITLE -->
+<section class="screen" id="title">
+  <span class="kicker">The remix art game</span>
+  <h1 class="logo">D<span class="o" style="background:var(--red)"></span>T<br>P<span class="o" style="background:var(--sun)"></span>P</h1>
+  <div class="how">
+    <div><b style="background:var(--sun)">1</b>Spin for an artist + mission</div>
+    <div><b style="background:var(--red);color:var(--white)">2</b>45 seconds to make it</div>
+    <div><b style="background:var(--mint)">3</b>Caption it. See it in a gallery.</div>
+  </div>
+  <div class="artists"><span>Starring</span><b>John Baldessari</b><i>+</i><b>Corita Kent</b></div>
+  <button class="btn go start" id="startBtn">Press start</button>
+  <div class="scores" id="scores"></div>
+  <div class="credit" id="credit"></div>
+</section>
 
-<script src="stills.js"></script>
+<!-- SPIN -->
+<section class="screen" id="spin" hidden>
+  <h2 class="h1">Pull the chance machine</h2>
+  <p class="sub">Both of today's artists let chance make some of their choices. You get an artist, your raw material, a mission and a palette.</p>
+  <div class="machine card">
+    <div class="reel" id="reelArt"><div class="label">Artist</div><div class="win"></div></div>
+    <div class="reel" id="reelMat"><div class="label">Material</div><div class="win"></div></div>
+    <div class="reel" id="reelMis"><div class="label">Mission</div><div class="win"></div></div>
+    <div class="reel" id="reelPal"><div class="label">Colors</div><div class="win"></div></div>
+  </div>
+  <div class="spin-row">
+    <button class="btn sun" id="pullBtn">Pull!</button>
+    <button class="btn go" id="goBtn" hidden>Cue the artist inspo</button>
+  </div>
+</section>
+
+<!-- BUILD -->
+<section class="screen" id="build" hidden>
+  <div class="hud">
+    <div class="card clock" id="clock">45</div>
+    <div class="card scorebox"><small>SCORE</small><span id="scoreNow">0</span></div>
+    <div class="card missionbox" id="missionBox">
+      <div class="tick" id="missionTick">?</div>
+      <div><div class="t" id="missionT"></div><div class="p" id="missionP"></div></div>
+    </div>
+  </div>
+  <div class="stage"><canvas id="poster" width="1080" height="1350" aria-label="Your artwork. Tap to add shapes."></canvas></div>
+  <div class="card tools">
+    <div class="toolrow" id="toolRow"></div>
+    <div><div class="label" style="margin-bottom:8px">Your palette</div><div class="swatches" id="swatches"></div></div>
+    <div><label class="label" for="size">Size</label><input type="range" id="size" min="24" max="260" value="96"></div>
+    <div class="minirow">
+      <button class="btn" id="undoBtn">Undo</button>
+      <button class="btn pink" id="splatBtn">Splat!</button>
+    </div>
+    <button class="btn mint" id="doneBtn">Done!</button>
+  </div>
+</section>
+
+<!-- CAPTION -->
+<section class="screen" id="caption" hidden>
+  <div class="stage"><img id="capPreview" alt="Your artwork so far"></div>
+  <div class="card capcard">
+    <h2>Caption roulette</h2>
+    <p id="capHint"></p>
+    <div class="capslot" id="capSlot"></div>
+    <div class="minirow">
+      <button class="btn sun" id="rollBtn">Spin caption</button>
+      <button class="btn go" id="lockBtn">Lock it in</button>
+    </div>
+    <input id="capIn" maxlength="64" placeholder="Or type your own…" autocomplete="off">
+    <div class="bonus" id="capBonus">Spins left: 3</div>
+  </div>
+</section>
+
+<!-- REVEAL -->
+<section class="screen" id="reveal" hidden>
+  <div class="stage">
+    <div class="gallery" id="gallery">
+      <div class="spot"></div>
+      <div class="frame"><img id="finalImg" alt="Your finished poster"></div>
+      <div class="placard" id="placard"></div>
+    </div>
+  </div>
+  <div class="card result">
+    <div class="label">Your artist type</div>
+    <div class="rank" id="rank"></div>
+    <div class="big-score" id="bigScore">0</div>
+    <div class="breakdown" id="breakdown"></div>
+    <div class="meters" id="meters"></div>
+    <div class="initials">
+      <input id="initIn" maxlength="3" placeholder="AAA" autocomplete="off" aria-label="Your initials">
+      <button class="btn sun" id="saveScoreBtn">Save score</button>
+    </div>
+    <div class="minirow">
+      <button class="btn mint" id="saveBtn">Save poster</button>
+      <button class="btn go" id="againBtn">Play again</button>
+    </div>
+    <div class="talk" id="talk"></div>
+  </div>
+</section>
+
 <script>
 /* =========================================================
-   CONFIG — change these for your school / event
+   Event settings: edit these
    ========================================================= */
 const CONFIG = {
   school: "College of Art and Design",
   program: "Graphic Design",
-  hashtag: "",            // e.g. "#DotYourFace" — printed on the poster if set
-  timerSeconds: 60,       // soft countdown; nothing is blocked when it runs out
-  idleResetSeconds: 75,   // return to attract screen after inactivity
-  galleryMax: 24,         // thumbnails kept on this device for the attract wall
+  buildSeconds: 45,
+  idleSeconds: 90,
 };
+
+const C = { red: "#ff2d3d", sun: "#ffd60a", cobalt: "#2b3dff", mint: "#00cf7f", pink: "#ff4fc3", orange: "#ff7a1a", sky: "#35c4ff", white: "#ffffff", ink: "#0e0e14" };
+
+/* Two artists. Each brings its own materials, palettes, missions, captions and talking points. */
+const ARTISTS = {
+  b: {
+    name: "John Baldessari", meta: "1931–2020 · Southern California · Conceptual artist",
+    line: "He stuck bright price-tag dots over faces in old movie stills, so you'd look at everything else in the picture.",
+    medium: "Pigment dots on found film still", capHint: "Baldessari's captions were flat and a little too literal. Spin one, or write your own for +50.",
+    splat: "Splat!", bonusLabel: "Faces hidden", meters: ["Bold", "Mystery", "Chaos"],
+  },
+  c: {
+    name: "Corita Kent", meta: "1918–1986 · Los Angeles · Printmaker and teacher",
+    line: "An art teacher and nun who turned grocery ads and road signs into neon-bright screenprints about hope and joy.",
+    medium: "Screenprint-style layers on paper", capHint: "Corita paired loud, borrowed ad words with a small, hopeful message. Spin one, or write your own for +50.",
+    splat: "Remix!", bonusLabel: "Ad words used", meters: ["Bold", "Layers", "Loud"],
+  },
+};
+const BOTH = "Both made art in 1960s Southern California by grabbing images and words from everyday life and remixing them. That's the heart of graphic design.";
+
+// borrowed "ad words" for Corita rounds
+const PHRASES = ["Power up", "New and improved", "Try it today", "Feel the glow", "Made fresh daily", "Open late",
+  "All new you", "Limited time only", "Now with more joy", "Big bright deal", "Satisfaction guaranteed", "Good things inside"];
+
+const C_PALETTES = [
+  { name: "Sunshine pop", colors: [C.sun, C.pink, C.sky] },
+  { name: "Fruit stand",  colors: [C.orange, C.red, C.sun] },
+  { name: "Pool party",   colors: [C.sky, C.mint, C.pink] },
+  { name: "Candy shop",   colors: [C.pink, C.sun, C.mint] },
+  { name: "Everything",   colors: [C.sun, C.pink, C.sky, C.orange, C.mint, C.red] },
+];
+
+const C_CAPTIONS = [
+  "Consider everything an experiment.",
+  "Notice the ordinary. It's waiting.",
+  "Joy is a design decision.",
+  "Read the signs. Then remix them.",
+  "Everything is material.",
+  "Make something loud today.",
+  "Words are shapes too.",
+  "Small words, big feelings.",
+  "Hope, in high contrast.",
+  "Love the everyday.",
+  "Bright on purpose.",
+  "Say it bigger.",
+];
+
+const C_TALK = [
+  "Corita Kent borrowed words from ads, like a gas station's \"Power Up,\" and gave them a new meaning. Designers call that recontextualizing.",
+  "She designed the 1985 \"Love\" postage stamp for the U.S. Postal Service. Graphic design can travel through millions of mailboxes.",
+  "Her rainbow swash on a Boston gas tank (1971) is still a local landmark. Big type and color work at the scale of a city.",
+  "One of her classroom rules was \"Consider everything an experiment.\" Studio classes still run on that idea.",
+  "Overlapping see-through colors makes new colors. Screen printers and digital designers both use it; in design software it's called multiply.",
+  "Big, cropped, tilted type is a classic poster move. In graphic design, type can be the picture.",
+];
+
+const PALETTES = [
+  { name: "Primary school", colors: [C.red, C.sun, C.cobalt] },
+  { name: "Hot sauce",      colors: [C.red, C.orange, C.pink] },
+  { name: "Pool party",     colors: [C.sky, C.mint, C.cobalt] },
+  { name: "Sunburn",        colors: [C.sun, C.orange, C.pink] },
+  { name: "Red only",       colors: [C.red] },
+  { name: "Everything",     colors: [C.red, C.sun, C.cobalt, C.mint, C.pink, C.orange, C.white, C.ink] },
+];
 
 const CAPTIONS = [
   "This is not a selfie. It is a composition.",
-  "A person who will not make boring art.",
-  "Future art student, partially obscured.",
   "The dot is more interesting than the face.",
+  "Future art student, partially obscured.",
+  "Everyone in this picture is important.",
   "Something is hidden here. Good.",
   "A picture that has been improved.",
-  "Portfolio piece no. 1",
   "Identity: pending.",
-  "I came to the table. I made a design.",
-  "Color is a decision.",
-  "Everyone in this picture is important.",
-  "What is graphic design? (Discuss.)",
   "Look at the dot. Not at me.",
   "Remove the face, keep the story.",
   "An ordinary photo, made strange.",
-  "Composition with one red decision.",
+  "Composition with one loud decision.",
+  "No one in this picture knows about the dots.",
+  "I was told to make art. So I did.",
+  "Portfolio piece number one.",
+  "Please do not ask who they are.",
+  "This took 45 seconds and a lifetime.",
 ];
 
-const TALKING_POINTS = [
-  "Covering a face with a dot makes you look at everything else: posture, gesture, the space between people. That's what designers do: steer attention.",
-  "Baldessari used found film stills and press photos. Designers remix existing images all the time; it's called art direction.",
-  "Picture + caption is the basic unit of graphic design. Every poster, ad and magazine spread starts here.",
-  "A flat, literal caption changes how we read a picture. Type is never neutral.",
-  "You just made decisions about hierarchy, color and contrast. In our program you'd do this with type, grids and image every week.",
-  "In 1970 Baldessari burned his early paintings and started over. Starting over is part of the process here, too.",
+const TALK = [
+  "Covering a face makes you look at everything else: posture, gesture, the space between people. Designers steer attention for a living.",
+  "John Baldessari worked with found film stills and press photos. Remixing images you didn't take is called art direction.",
+  "Picture + caption is the basic unit of graphic design. Posters, ads, album covers and feeds all start there.",
+  "Your mission was a design brief: a rule that forces a creative answer. Every studio class starts with one.",
+  "In 1970 Baldessari burned his early paintings and started over. Iteration is part of studio culture.",
+  "Choosing a limited palette is a real design move. Brands do it to be recognized from across a room.",
 ];
 
 /* =========================================================
-   Setup
+   Found film stills (drawn in code, nothing to license)
+   ========================================================= */
+const PW = 940; // photo is PW x PW
+function rand(seed) { return () => (seed = (seed * 16807) % 2147483647) / 2147483647; }
+
+let FIG = 0;
+const HAIR = ["short", "long", "bun", "curly", "short", "cap", "long", "curly"];
+const HAIR_TONES = ["#151515", "#2e2a26", "#8d867b", "#151515", "#4a443d"];
+// a found-photo person: shaded torso, arms, ears, and one of several hairstyles
+function figure(g, x, y, s, tone, faceTone, hair) {
+  const n = FIG++;
+  hair = hair || HAIR[n % HAIR.length];
+  const hc = HAIR_TONES[n % HAIR_TONES.length];
+  if (hair === "long") { g.fillStyle = hc; g.beginPath(); g.ellipse(x, y + 18*s, 31*s, 50*s, 0, 0, Math.PI*2); g.fill(); }
+  // torso
+  g.fillStyle = tone;
+  g.beginPath();
+  g.moveTo(x - 50*s, y + 230*s);
+  g.quadraticCurveTo(x - 56*s, y + 64*s, x - 30*s, y + 50*s);
+  g.lineTo(x + 30*s, y + 50*s);
+  g.quadraticCurveTo(x + 56*s, y + 64*s, x + 50*s, y + 230*s);
+  g.closePath(); g.fill();
+  const sh = g.createLinearGradient(x - 50*s, 0, x + 50*s, 0);
+  sh.addColorStop(0, "rgba(255,255,255,.10)"); sh.addColorStop(.5, "rgba(0,0,0,0)"); sh.addColorStop(1, "rgba(0,0,0,.28)");
+  g.fillStyle = sh; g.fill();
+  // arms
+  g.strokeStyle = "rgba(0,0,0,.35)"; g.lineWidth = 3*s; g.lineCap = "round";
+  g.beginPath(); g.moveTo(x - 36*s, y + 80*s); g.quadraticCurveTo(x - 40*s, y + 150*s, x - 36*s, y + 215*s); g.stroke();
+  g.beginPath(); g.moveTo(x + 36*s, y + 80*s); g.quadraticCurveTo(x + 40*s, y + 150*s, x + 36*s, y + 215*s); g.stroke();
+  // shirt v
+  g.fillStyle = "#ebe8e2";
+  g.beginPath(); g.moveTo(x - 11*s, y + 50*s); g.lineTo(x, y + 84*s); g.lineTo(x + 11*s, y + 50*s); g.fill();
+  // neck, ears, head
+  g.fillStyle = faceTone;
+  g.fillRect(x - 9*s, y + 22*s, 18*s, 30*s);
+  g.beginPath(); g.ellipse(x - 25*s, y + 2*s, 5*s, 8*s, 0, 0, Math.PI*2); g.ellipse(x + 25*s, y + 2*s, 5*s, 8*s, 0, 0, Math.PI*2); g.fill();
+  g.beginPath(); g.ellipse(x, y, 25*s, 30*s, 0, 0, Math.PI*2); g.fill();
+  const fs = g.createLinearGradient(x - 25*s, 0, x + 25*s, 0);
+  fs.addColorStop(0, "rgba(255,255,255,.12)"); fs.addColorStop(1, "rgba(0,0,0,.22)");
+  g.fillStyle = fs; g.fill();
+  // hair
+  g.fillStyle = hc;
+  if (hair === "curly") {
+    for (let a = Math.PI * 1.05; a <= Math.PI * 1.95; a += Math.PI / 7) { g.beginPath(); g.arc(x + Math.cos(a) * 24*s, y - 6*s + Math.sin(a) * 26*s, 11*s, 0, Math.PI*2); g.fill(); }
+  } else if (hair === "cap") {
+    g.beginPath(); g.ellipse(x, y - 12*s, 27*s, 20*s, 0, Math.PI, Math.PI*2); g.fill();
+    g.fillRect(x - 4*s, y - 14*s, 40*s, 6*s);
+  } else if (hair === "grad") {
+    g.fillStyle = "#121214"; g.beginPath(); g.ellipse(x, y - 14*s, 26*s, 15*s, 0, Math.PI, Math.PI*2); g.fill();
+    g.beginPath(); g.moveTo(x - 44*s, y - 30*s); g.lineTo(x, y - 46*s); g.lineTo(x + 44*s, y - 30*s); g.lineTo(x, y - 16*s); g.closePath(); g.fill();
+    g.strokeStyle = "#d9d4c7"; g.lineWidth = 2.5*s; g.beginPath(); g.moveTo(x, y - 31*s); g.lineTo(x + 30*s, y - 26*s); g.lineTo(x + 32*s, y - 4*s); g.stroke();
+  } else {
+    g.beginPath(); g.ellipse(x, y - 13*s, 27*s, 19*s, 0, Math.PI, Math.PI*2); g.fill();
+    if (hair === "bun") { g.beginPath(); g.arc(x, y - 36*s, 12*s, 0, Math.PI*2); g.fill(); }
+  }
+  return { x, y, r: 34*s };
+}
+
+function grain(g, seed) {
+  const r = rand(seed), img = g.getImageData(0, 0, PW, PW), d = img.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const y = (.299*d[i] + .587*d[i+1] + .114*d[i+2]) + (r() - .5) * 26;
+    d[i] = d[i+1] = d[i+2] = (y - 128) * 1.12 + 128;
+  }
+  g.putImageData(img, 0, 0);
+  const v = g.createRadialGradient(PW/2, PW/2, PW*.3, PW/2, PW/2, PW*.75);
+  v.addColorStop(0, "rgba(0,0,0,0)"); v.addColorStop(1, "rgba(0,0,0,.45)");
+  g.fillStyle = v; g.fillRect(0, 0, PW, PW);
+}
+
+const SCENES = [
+  { name: "The handshake", draw(g) {
+      g.fillStyle = "#8d8a84"; g.fillRect(0, 0, PW, PW);
+      g.fillStyle = "#a9a59d"; g.fillRect(0, 0, PW, PW*.62);
+      g.fillStyle = "#6c6964"; g.fillRect(90, 90, 230, 320);
+      g.fillStyle = "#c9c5bc"; g.fillRect(105, 105, 200, 290);
+      g.fillStyle = "#5c5a56"; g.fillRect(560, 130, 300, 190);
+      const f = [figure(g, 360, 330, 1.9, "#2a2a2c", "#bdb6aa"), figure(g, 600, 340, 1.85, "#3b3a38", "#c7c0b3")];
+      g.strokeStyle = "#bdb6aa"; g.lineWidth = 24; g.lineCap = "round";
+      g.beginPath(); g.moveTo(410, 560); g.lineTo(480, 600); g.lineTo(550, 565); g.stroke();
+      return f;
+  }},
+  { name: "Team photo", draw(g) {
+      g.fillStyle = "#9b978f"; g.fillRect(0, 0, PW, PW);
+      g.fillStyle = "#7c7871"; g.fillRect(0, PW*.7, PW, PW*.3);
+      const f = [];
+      [150, 330, 510, 690, 870].forEach((x, i) => f.push(figure(g, x - 40, 300 + (i%2)*12, 1.05, i%2 ? "#3c3b39" : "#262628", "#c2bbae")));
+      [110, 290, 470, 650, 830].forEach((x, i) => f.push(figure(g, x + 30, 520 + (i%2)*10, 1.15, i%2 ? "#2b2b2d" : "#4a4845", "#cbc4b7")));
+      return f;
+  }},
+  { name: "Yearbook", draw(g) {
+      g.fillStyle = "#d8d5ce"; g.fillRect(0, 0, PW, PW);
+      const f = [], cell = 290, pad = 25, r = rand(3);
+      for (let row = 0; row < 3; row++) for (let col = 0; col < 3; col++) {
+        const x0 = pad + col * (cell + 12), y0 = pad + row * (cell + 12);
+        g.save(); g.beginPath(); g.rect(x0, y0, cell, cell); g.clip();
+        const t = 120 + (r() * 70 | 0); g.fillStyle = `rgb(${t},${t},${t-4})`; g.fillRect(x0, y0, cell, cell);
+        const k = 160 + (r() * 40 | 0);
+        f.push(figure(g, x0 + cell/2, y0 + 120, 2.1, `rgb(${30 + r()*30|0},${30 + r()*30|0},${32 + r()*30|0})`, `rgb(${k},${k-6},${k-16})`));
+        g.restore();
+      }
+      return f;
+  }},
+  { name: "Family dinner", draw(g) {
+      g.fillStyle = "#57554f"; g.fillRect(0, 0, PW, PW);
+      const lamp = g.createRadialGradient(PW/2, 120, 10, PW/2, 300, 600);
+      lamp.addColorStop(0, "rgba(255,250,235,.55)"); lamp.addColorStop(1, "rgba(0,0,0,0)");
+      g.fillStyle = lamp; g.fillRect(0, 0, PW, PW);
+      const f = [figure(g, 210, 360, 1.5, "#1e1e20", "#bfb8ab"), figure(g, 410, 300, 1.35, "#33322f", "#c8c1b4"),
+                 figure(g, 560, 300, 1.35, "#2a2a2b", "#b9b2a5"), figure(g, 750, 360, 1.5, "#3a3936", "#c4bdb0")];
+      g.fillStyle = "#e8e4dc"; g.fillRect(60, 600, PW - 120, 360);
+      g.fillStyle = "#cfcac0"; g.fillRect(60, 600, PW - 120, 18);
+      g.fillStyle = "#f5f2ec";
+      [200, 400, 560, 760].forEach(x => { g.beginPath(); g.ellipse(x, 690, 60, 20, 0, 0, Math.PI*2); g.fill(); });
+      g.fillStyle = "#3a3936"; [300, 660].forEach(x => g.fillRect(x, 560, 14, 110));
+      return f;
+  }},
+  { name: "Prom night", draw(g) {
+      g.fillStyle = "#2c2b2e"; g.fillRect(0, 0, PW, PW);
+      g.fillStyle = "rgba(255,255,255,.13)";
+      [[200, -40], [470, -40], [740, -40]].forEach(([x, y], i) => { g.beginPath(); g.moveTo(x, y); g.lineTo(x - 200 + i*90, PW); g.lineTo(x + 40 + i*90, PW); g.fill(); });
+      g.fillStyle = "#bdbab3"; g.beginPath(); g.arc(PW/2, 110, 70, 0, Math.PI*2); g.fill();      // disco ball
+      g.strokeStyle = "#7d7a74"; g.lineWidth = 3;
+      for (let k = -60; k <= 60; k += 20) { g.beginPath(); g.moveTo(PW/2 - 70, 110 + k); g.lineTo(PW/2 + 70, 110 + k); g.stroke(); g.beginPath(); g.moveTo(PW/2 + k, 40); g.lineTo(PW/2 + k, 180); g.stroke(); }
+      g.fillStyle = "#4a4845"; g.fillRect(0, PW*.78, PW, PW*.22);
+      return [figure(g, 380, 380, 1.95, "#141416", "#c9c2b5"), figure(g, 570, 395, 1.85, "#d8d4cc", "#bdb6a9")];
+  }},
+  { name: "The concert", draw(g) {
+      g.fillStyle = "#3a393c"; g.fillRect(0, 0, PW, PW);
+      g.fillStyle = "rgba(255,255,255,.18)";
+      for (let i = 0; i < 5; i++) { const x = 90 + i * 190; g.beginPath(); g.moveTo(x, 0); g.lineTo(x - 120, PW*.6); g.lineTo(x + 120, PW*.6); g.fill(); }
+      const r = rand(7), f = [];
+      for (let row = 0; row < 3; row++) {
+        const s = .75 + row * .25, y = 330 + row * 190;
+        for (let x = 50 + (row%2)*60; x < PW; x += 125 * s + 40) {
+          const t = Math.floor(25 + r()*40);
+          f.push(figure(g, x + r()*20, y + r()*20, s, `rgb(${t},${t},${t+2})`, `rgb(${180+r()*30|0},${172+r()*30|0},${160+r()*30|0})`));
+        }
+      }
+      return f;
+  }},
+  { name: "Graduation", draw(g) {
+      const sky = g.createLinearGradient(0, 0, 0, PW);
+      sky.addColorStop(0, "#d9d6cf"); sky.addColorStop(.65, "#a7a39b"); sky.addColorStop(1, "#6f6c66");
+      g.fillStyle = sky; g.fillRect(0, 0, PW, PW);
+      g.fillStyle = "#8d8a83"; g.fillRect(0, PW*.68, PW, PW*.32);
+      g.fillStyle = "#121214";   // tossed caps
+      [[150, 110, .3], [420, 70, -.4], [690, 130, .5], [820, 60, -.2], [300, 190, .1]].forEach(([x, y, a]) => {
+        g.save(); g.translate(x, y); g.rotate(a); g.beginPath(); g.moveTo(-36, 0); g.lineTo(0, -14); g.lineTo(36, 0); g.lineTo(0, 14); g.closePath(); g.fill(); g.restore(); });
+      const f = [];
+      [140, 330, 520, 710].forEach((x, i) => f.push(figure(g, x + 40, 400 + (i%2)*20, 1.55, "#18181a", "#c6bfb2", "grad")));
+      return f;
+  }},
+  { name: "The museum", draw(g) {
+      g.fillStyle = "#cfccc5"; g.fillRect(0, 0, PW, PW);
+      g.fillStyle = "#9d9a93"; g.fillRect(0, PW*.74, PW, PW*.26);
+      [[60, 90, 300, 220], [420, 60, 220, 300], [700, 110, 190, 190]].forEach(([x, y, w, h], i) => {
+        g.fillStyle = "#2a2927"; g.fillRect(x - 12, y - 12, w + 24, h + 24);
+        g.fillStyle = "#e9e6df"; g.fillRect(x, y, w, h);
+        g.fillStyle = ["#55534f", "#3a3936", "#7b7873"][i];
+        if (i === 0) { g.beginPath(); g.arc(x + w*.4, y + h*.5, 70, 0, Math.PI*2); g.fill(); }
+        if (i === 1) { g.fillRect(x + 30, y + 40, w - 60, 60); g.fillRect(x + 30, y + 130, 80, h - 170); }
+        if (i === 2) { g.beginPath(); g.moveTo(x + 20, y + h - 20); g.lineTo(x + w/2, y + 20); g.lineTo(x + w - 20, y + h - 20); g.fill(); }
+      });
+      g.fillStyle = "#5e5b56"; g.fillRect(300, 640, 360, 26); g.fillRect(320, 666, 16, 60); g.fillRect(624, 666, 16, 60);   // bench
+      return [figure(g, 200, 430, 1.55, "#2b2a2c", "#c4bdb0"), figure(g, 480, 410, 1.6, "#4a4845", "#bdb6a9"), figure(g, 760, 440, 1.5, "#1d1d1f", "#c9c2b5")];
+  }},
+];
+
+const STILLS = SCENES.map((sc, i) => {
+  const c = document.createElement("canvas"); c.width = c.height = PW;
+  const g = c.getContext("2d");
+  const faces = sc.draw(g); grain(g, 1234 + i);
+  return { name: sc.name, canvas: c, faces, thumb: c.toDataURL("image/jpeg", .7) };
+});
+
+/* =========================================================
+   Missions: each is a design brief with a live check
+   ========================================================= */
+const MISSIONS = [
+  { t: "Overlap party", d: "Layer colors so 12% of the art is overlapping.", a: "c",
+    check: s => { const o = sample().overlap; return [o >= .12, `${Math.round(o * 100)}% layered`]; } },
+  { t: "Use every word", d: "Get every word of your ad onto the art.", a: "c",
+    check: s => { const used = wordsUsed(), all = phraseWords().length; return [used >= all, `${used} / ${all} words placed`]; } },
+  { t: "Go huge", d: "Make one word fill most of the width.", a: "c",
+    check: s => { const m = Math.max(0, ...s.shapes.filter(x => x.type === "word").map(x => x.w)); return [m >= PW * .75, `Biggest word: ${Math.round(m / PW * 100)}% wide`]; } },
+  { t: "Off the edge", d: "Let a word run right off the edge, like Corita did.", a: "c",
+    check: s => { const n = s.shapes.filter(x => x.type === "word" && (x.x - x.w / 2 < 0 || x.x + x.w / 2 > PW || x.y - x.h / 2 < 0 || x.y + x.h / 2 > PW)).length; return [n >= 1, n ? "A word is bleeding off the edge" : "No words off the edge yet"]; } },
+  { t: "Fill it up", d: "Cover 60% of the paper with color and words.", a: "c",
+    check: s => { const c = sample().cov; return [c >= .6, `${Math.round(c * 100)}% covered`]; } },
+  { t: "Loud and layered", d: "Stack up 10 or more layers.", a: "c",
+    check: s => [s.shapes.length >= 10, `${s.shapes.length} / 10 layers`] },
+  { a: "b", t: "Hide every face", d: "Not one face left showing.", faces: true,
+    check: s => { const n = s.faces.filter(f => covered(f)).length; return [n === s.faces.length, `${n} of ${s.faces.length} faces hidden`]; } },
+  { a: "b", t: "Only one survives", d: "Hide every face but one.", faces: true, min: 3,
+    check: s => { const n = s.faces.filter(f => !covered(f)).length; return [n === 1, `${n} faces still showing`]; } },
+  { a: "b", t: "Exactly three", d: "Use exactly 3 dots. No more, no less.",
+    check: s => { const n = s.shapes.filter(x => x.type === "dot").length; return [n === 3, `${n} / 3 dots`]; } },
+  { a: "b", t: "Go giant", d: "Make one dot bigger than half the picture.",
+    check: s => { const m = Math.max(0, ...s.shapes.filter(x => x.type === "dot").map(x => x.r * 2)); return [m >= PW / 2, `Biggest dot: ${Math.round(m / PW * 100)}% wide`]; } },
+  { a: "b", t: "Cover half", d: "Cover at least half of the picture.",
+    check: s => { const c = coverage(); return [c >= .5, `${Math.round(c * 100)}% covered`]; } },
+  { a: "b", t: "Make a pattern", d: "Drop 12 or more shapes.",
+    check: s => [s.shapes.length >= 12, `${s.shapes.length} / 12 shapes`] },
+  { a: "b", t: "Faces stay, world goes", d: "Cover 35% of the picture without touching a face.", faces: true,
+    check: s => { const c = coverage(), hit = s.faces.some(f => covered(f)); return [c >= .35 && !hit, hit ? "Oops, a face is covered" : `${Math.round(c * 100)}% covered, faces clear`]; } },
+];
+
+/* =========================================================
+   State
    ========================================================= */
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
-const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-const COLORS = ["--red", "--yellow", "--blue", "--green", "--orange", "--white", "--ink"].map(css);
-
-const W = 1080, H = 1350;                  // poster size (4:5, Instagram portrait)
-const PHOTO = { x: 70, y: 70, w: 940, h: 940 };
+const W = 1080, H = 1350, PX = 70, PY = 70;
 const poster = $("#poster"), ctx = poster.getContext("2d");
 
-const state = {
-  step: 0, tool: "dot", color: COLORS[0], size: 95,
-  photo: null,       // canvas, PHOTO.w x PHOTO.h, full color
-  photoBW: null,     // grayscale copy
-  bw: true,
-  faces: [],         // known face positions for found stills
-  shapes: [],
-  caption: CAPTIONS[0],
-  started: 0,
+const S = {
+  artist: "b", phrase: "", wordIdx: 0, overlapPrev: 0,
+  photo: null, photoName: "", faces: [],
+  mission: MISSIONS[0], palette: PALETTES[0],
+  shapes: [], tool: "dot", color: C.red, size: 96,
+  caption: "", custom: false, spinsLeft: 3,
+  t0: 0, timeLeft: CONFIG.buildSeconds, timer: null, missionDone: false, missionAt: 0,
+  respins: 1, sound: true, combo: 0, bestCombo: 0, lastDrop: 0, hiddenCount: 0, edition: 1, final: null,
 };
-
-const STILLS = SCENES.map((_, i) => makeStill(i));
-
-/* =========================================================
-   Photo handling
-   ========================================================= */
-function toGray(src) {
-  const c = document.createElement("canvas"); c.width = src.width; c.height = src.height;
-  const g = c.getContext("2d"); g.drawImage(src, 0, 0);
-  const img = g.getImageData(0, 0, c.width, c.height), d = img.data;
-  for (let i = 0; i < d.length; i += 4) {
-    let y = .299*d[i] + .587*d[i+1] + .114*d[i+2];
-    y = (y - 128) * 1.15 + 128;               // a touch of newsprint contrast
-    d[i] = d[i+1] = d[i+2] = y;
-  }
-  g.putImageData(img, 0, 0); return c;
-}
-
-function coverInto(source, sw, sh, mirror) {
-  const c = document.createElement("canvas"); c.width = PHOTO.w; c.height = PHOTO.h;
-  const g = c.getContext("2d");
-  const s = Math.max(PHOTO.w / sw, PHOTO.h / sh), dw = sw * s, dh = sh * s;
-  if (mirror) { g.translate(PHOTO.w, 0); g.scale(-1, 1); }
-  g.drawImage(source, (PHOTO.w - dw) / 2, (PHOTO.h - dh) / 2, dw, dh);
-  return c;
-}
-
-function setPhoto(canvas, faces) {
-  state.photo = canvas; state.photoBW = toGray(canvas); state.faces = faces || [];
-  state.shapes = [];
-  $("#autoBtn").style.display = state.faces.length ? "" : "none";
-  render(); go(1);
-}
+try { S.edition = Number(localStorage.getItem("dd-edition") || 0) + 1; } catch {}
 
 /* =========================================================
-   Rendering
+   Sound: tiny synth, starts after the first tap
    ========================================================= */
-function wrap(text, maxW, font) {
-  ctx.font = font;
-  const words = text.split(/\s+/), lines = []; let line = "";
-  for (const w of words) {
-    const t = line ? line + " " + w : w;
-    if (ctx.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t;
+let AC = null;
+function tone(freq, dur = .12, type = "sine", vol = .18, slide = 0) {
+  if (!S.sound) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime;
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(40, freq + slide), t + dur);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.001, t + dur);
+    o.connect(g).connect(AC.destination); o.start(t); o.stop(t + dur);
+  } catch {}
+}
+const sfx = {
+  pop: () => tone(300 + Math.random() * 500, .1, "sine", .22, 300),
+  tick: () => tone(900, .03, "square", .05),
+  land: () => tone(220, .18, "triangle", .2, -80),
+  ding: () => { tone(880, .15, "triangle", .2); setTimeout(() => tone(1320, .25, "triangle", .2), 110); },
+  fanfare: () => [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => tone(f, .22, "square", .08), i * 120)),
+  buzz: () => tone(140, .4, "sawtooth", .12, -40),
+  erase: () => tone(500, .12, "sine", .15, -380),
+  thud: () => { tone(90, .35, "sine", .4, -50); tone(60, .4, "triangle", .3); },
+  beep: () => tone(1000, .09, "sine", .18),
+  click: () => tone(1800, .03, "square", .12),
+};
+$("#muteBtn").onclick = () => { S.sound = !S.sound; $("#muteBtn").textContent = S.sound ? "SND" : "OFF"; };
+
+/* =========================================================
+   Helpers
+   ========================================================= */
+function show(id) {
+  $$(".screen").forEach(s => s.hidden = s.id !== id);
+  window.scrollTo(0, 0);
+}
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 1900); }
+const pick = a => a[Math.floor(Math.random() * a.length)];
+
+function inShape(x, y, s) {
+  if (s.type === "dot") return Math.hypot(x - s.x, y - s.y) <= s.r;
+  if (s.type === "word") {
+    const dx = x - s.x, dy = y - s.y, c = Math.cos(s.rot), n = Math.sin(s.rot);
+    return Math.abs(dx * c + dy * n) <= s.w / 2 && Math.abs(-dx * n + dy * c) <= s.h / 2;
   }
-  if (line) lines.push(line);
-  return lines;
+  const x0 = Math.min(s.x, s.x + s.w), y0 = Math.min(s.y, s.y + s.h);
+  return x >= x0 && x <= x0 + Math.abs(s.w) && y >= y0 && y <= y0 + Math.abs(s.h);
+}
+// a face counts as hidden when its center and most of its outline are under shapes
+function covered(f) {
+  const pts = [[0, 0], [.7, 0], [-.7, 0], [0, .7], [0, -.7]];
+  const hits = pts.filter(([dx, dy]) => S.shapes.some(s => inShape(f.x + dx * f.r, f.y + dy * f.r, s))).length;
+  return hits >= 4;
+}
+// sample the art on a grid: how much is covered, and how much has 2+ different colors stacked
+function sample() {
+  let n = 0, o = 0, tot = 0;
+  for (let y = 10; y < PW; y += 20) for (let x = 10; x < PW; x += 20) {
+    tot++;
+    const cols = new Set(S.shapes.filter(s => inShape(x, y, s)).map(s => s.color));
+    if (cols.size) n++; if (cols.size > 1) o++;
+  }
+  return { cov: n / tot, overlap: o / tot };
+}
+function coverage() { return sample().cov; }
+const phraseWords = () => S.phrase.toUpperCase().split(/\s+/);
+const wordsUsed = () => new Set(S.shapes.filter(s => s.type === "word").map(s => s.text)).size;
+const WORD_FONT = sz => `${sz}px "Bowlby One", Impact, sans-serif`;
+
+/* =========================================================
+   Background field + title
+   ========================================================= */
+(function field() {
+  const cols = [C.red, C.sun, C.mint, C.pink, C.orange, C.sky];
+  const spots = [[-6, 8, 26], [78, -8, 30], [88, 62, 22], [-8, 70, 24], [40, 88, 16], [60, 20, 9], [20, 40, 7]];
+  $("#field").innerHTML = spots.map(([x, y, s], i) =>
+    `<i style="left:${x}vw;top:${y}vh;width:${s}vmax;height:${s}vmax;background:${cols[i % cols.length]};--dx:${(i%2?1:-1)*4}vw;--dy:${(i%3-1)*5}vh;animation-delay:-${i*2}s"></i>`).join("");
+})();
+
+function highScores() { try { return JSON.parse(localStorage.getItem("dd-scores") || "[]"); } catch { return []; } }
+function drawTitle() {
+  const hs = highScores();
+  $("#scores").innerHTML = hs.length
+    ? "<span>High scores:</span>" + hs.slice(0, 5).map(h => `<span><em>${h.s}</em>${h.i}</span>`).join("")
+    : "<span>No high scores yet. Be the first.</span>";
+  $("#credit").textContent = `${CONFIG.school} · ${CONFIG.program}`;
 }
 
-function edition() { return String(Number(localStorage.getItem("bb-edition") || 0) + 1).padStart(4, "0"); }
+/* =========================================================
+   Spin screen
+   ========================================================= */
+const ART_THUMBS = {};
+function artistThumbs() {
+  const mk = draw => { const c = document.createElement("canvas"); c.width = c.height = 240; draw(c.getContext("2d")); return c.toDataURL("image/png"); };
+  ART_THUMBS.b = mk(g => {
+    g.drawImage(STILLS[0].canvas, 0, 0, 240, 240);
+    STILLS[0].faces.forEach((f, i) => { g.fillStyle = [C.red, C.sun][i % 2]; g.beginPath(); g.arc(f.x * 240 / PW, f.y * 240 / PW, f.r * 1.1 * 240 / PW, 0, Math.PI * 2); g.fill(); });
+  });
+  ART_THUMBS.c = mk(g => {
+    g.fillStyle = "#fffaf0"; g.fillRect(0, 0, 240, 240); g.globalCompositeOperation = "multiply";
+    [[70, 80, 70, C.sun], [150, 100, 80, C.pink], [110, 170, 70, C.sky]].forEach(([x, y, r, c]) => { g.fillStyle = c; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); });
+    g.fillStyle = C.red; g.translate(120, 130); g.rotate(-.18); g.font = WORD_FONT(64); g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("POWER", 0, -30); g.fillText("UP!", 0, 34);
+  });
+}
+function reelArt(a) { return `<div><img src="${ART_THUMBS[a]}" alt=""><div class="name">${ARTISTS[a].name}</div></div>`; }
+function reelMat(m) { return m.thumb ? reelPic(m) : `<div class="phrase">${m}</div>`; }
+function reelPic(still) {
+  return `<div><img src="${still.thumb}" alt=""><div class="name">${still.name}</div></div>`;
+}
+function reelMis(m) { return `<div><div class="mission">${m.t}</div><div class="mdesc">${m.d}</div></div>`; }
+function reelPal(p) { return `<div><div class="chips">${p.colors.map(c => `<i style="background:${c}"></i>`).join("")}</div><div class="name" style="margin-top:8px">${p.name}</div></div>`; }
 
-function render(target = ctx, { selection = true } = {}) {
-  const g = target;
-  g.fillStyle = "#fff"; g.fillRect(0, 0, W, H);
+function missionsFor(a, faces) { return MISSIONS.filter(m => m.a === a && (!m.faces || faces.length) && (!m.min || faces.length >= m.min)); }
+const palettesFor = a => a === "c" ? C_PALETTES : PALETTES;
 
-  // photo
-  g.save();
-  g.beginPath(); g.rect(PHOTO.x, PHOTO.y, PHOTO.w, PHOTO.h); g.clip();
-  if (state.photo) g.drawImage(state.bw ? state.photoBW : state.photo, PHOTO.x, PHOTO.y);
-  else { g.fillStyle = "#ddd"; g.fillRect(PHOTO.x, PHOTO.y, PHOTO.w, PHOTO.h); }
-  for (const s of state.shapes) {
+function spinReel(el, render, items, stopAt, final) {
+  return new Promise(res => {
+    const win = el.querySelector(".win"); el.classList.add("spinning"); el.classList.remove("landed");
+    const t0 = performance.now(); let last = 0;
+    (function step(now) {
+      const p = (now - t0) / stopAt, gap = 50 + 220 * p * p;
+      if (now - last > gap) { win.innerHTML = render(pick(items)); last = now; sfx.tick(); }
+      if (p < 1) requestAnimationFrame(step);
+      else { win.innerHTML = render(final); el.classList.remove("spinning"); el.classList.add("landed"); sfx.land(); res(); }
+    })(t0);
+  });
+}
+
+let spinning = false;
+async function pull() {
+  if (spinning) return; spinning = true;
+  $("#pullBtn").disabled = true; $("#goBtn").hidden = true;
+  S.artist = pick(["b", "c"]);
+  let mat;
+  if (S.artist === "b") { const still = pick(STILLS); S.photo = still.canvas; S.photoName = still.name; S.faces = still.faces; S.phrase = ""; mat = still; }
+  else { S.photo = null; S.photoName = ""; S.faces = []; S.phrase = pick(PHRASES); mat = S.phrase; }
+  S.mission = pick(missionsFor(S.artist, S.faces));
+  S.palette = pick(palettesFor(S.artist));
+  await Promise.all([
+    spinReel($("#reelArt"), reelArt, ["b", "c"], 800, S.artist),
+    spinReel($("#reelMat"), reelMat, [...STILLS, ...PHRASES], 1300, mat),
+    spinReel($("#reelMis"), reelMis, MISSIONS, 1800, S.mission),
+    spinReel($("#reelPal"), reelPal, [...PALETTES, ...C_PALETTES], 2300, S.palette)]);
+  spinning = false;
+  $("#goBtn").hidden = false;
+  $("#pullBtn").textContent = S.respins > 0 ? "Respin (1 left)" : "No respins left";
+  $("#pullBtn").disabled = S.respins <= 0;
+  S.respins--;
+}
+$("#pullBtn").onclick = pull;
+
+/* =========================================================
+   Build screen
+   ========================================================= */
+function render(g = ctx, now = performance.now()) {
+  g.fillStyle = C.white; g.fillRect(0, 0, W, H);
+  g.save(); g.beginPath(); g.rect(PX, PY, PW, PW); g.clip();
+  if (S.photo) g.drawImage(S.photo, PX, PY);
+  else { g.fillStyle = "#fffaf0"; g.fillRect(PX, PY, PW, PW); }
+  for (const s of S.shapes) {
     g.fillStyle = s.color;
-    if (s.type === "dot") { g.beginPath(); g.arc(PHOTO.x + s.x, PHOTO.y + s.y, s.r, 0, Math.PI*2); g.fill(); }
-    else g.fillRect(PHOTO.x + Math.min(s.x, s.x + s.w), PHOTO.y + Math.min(s.y, s.y + s.h), Math.abs(s.w), Math.abs(s.h));
+    g.globalCompositeOperation = s.blend || "source-over";
+    if (s.type === "word") {
+      const a = s.anim ? dropFrame(s, now) : { dy: 0, sx: 1, sy: 1 };
+      g.save(); g.translate(PX + s.x, PY + s.y + a.dy + s.h / 2 * (1 - a.sy)); g.rotate(s.rot); g.scale(a.sx, a.sy);
+      g.font = WORD_FONT(s.size); g.textAlign = "center"; g.textBaseline = "middle";
+      g.fillText(s.text, 0, s.size * .04); g.restore();
+    }
+    else if (s.type === "dot") {
+      const a = s.anim ? dropFrame(s, now) : null;
+      g.beginPath();
+      if (a) g.ellipse(PX + s.x, PY + s.y + a.dy + s.r * (1 - a.sy), s.r * a.sx, s.r * a.sy, 0, 0, Math.PI * 2);
+      else g.arc(PX + s.x, PY + s.y, s.r * (s.pop ?? 1), 0, Math.PI * 2);
+      g.fill();
+      if (a && a.ring > 0) {
+        g.strokeStyle = `rgba(255,255,255,${a.ring})`; g.lineWidth = 10 * a.ring;
+        g.beginPath(); g.arc(PX + s.x, PY + s.y, s.r * (1 + (1 - a.ring) * 1.3), 0, Math.PI * 2); g.stroke();
+      }
+    }
+    else g.fillRect(PX + Math.min(s.x, s.x + s.w), PY + Math.min(s.y, s.y + s.h), Math.abs(s.w), Math.abs(s.h));
   }
+  g.globalCompositeOperation = "source-over";
   g.restore();
 
-  // caption: plain black caps, the way a sign painter would letter it
-  const text = (state.caption || "").toUpperCase().trim() || " ";
-  let size = 74, lines;
-  do { lines = wrap(text, PHOTO.w, `900 ${size}px "Helvetica Neue", Helvetica, Arial, sans-serif`); size -= 4; }
-  while ((lines.length > 3 || lines.length * size * 1.05 > 185) && size > 30);
-  size += 4;
-  g.font = `900 ${size}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
-  g.fillStyle = "#111"; g.textBaseline = "top"; g.textAlign = "left";
-  lines.forEach((l, i) => g.fillText(l, PHOTO.x, PHOTO.y + PHOTO.h + 40 + i * size * 1.02));
-
+  // caption in plain heavy caps, like a sign painter's
+  const text = (S.caption || "").toUpperCase().trim();
+  if (text) {
+    let size = 76, lines;
+    const fit = sz => { g.font = `900 ${sz}px Archivo, "Helvetica Neue", Arial, sans-serif`; const out = []; let line = "";
+      for (const w of text.split(/\s+/)) { const t = line ? line + " " + w : w; if (g.measureText(t).width > PW && line) { out.push(line); line = w; } else line = t; }
+      if (line) out.push(line); return out; };
+    do { lines = fit(size); size -= 4; } while ((lines.length > 3 || lines.length * size > 170) && size > 30);
+    size += 4; lines = fit(size);
+    g.fillStyle = C.ink; g.textBaseline = "top"; g.textAlign = "left";
+    lines.forEach((l, i) => g.fillText(l, PX, PY + PW + 36 + i * size * 1.0));
+  } else {
+    g.font = `900 60px Archivo, "Helvetica Neue", Arial, sans-serif`;
+    g.fillStyle = "#d4d6e6"; g.textBaseline = "top"; g.textAlign = "left";
+    g.fillText("YOUR CAPTION GOES HERE", PX, PY + PW + 40);
+  }
   // footer
-  g.font = `700 22px "Helvetica Neue", Helvetica, Arial, sans-serif`;
-  g.fillStyle = "#111"; g.textBaseline = "alphabetic";
-  const fy = H - 46;
-  g.fillText(CONFIG.school.toUpperCase() + "  ·  " + CONFIG.program.toUpperCase(), PHOTO.x, fy);
+  const fy = H - 44;
+  g.fillStyle = C.ink; g.fillRect(PX, fy - 42, PW, 4);
+  g.font = `800 21px Archivo, "Helvetica Neue", Arial, sans-serif`; g.textBaseline = "alphabetic"; g.textAlign = "left";
+  g.fillText(CONFIG.school.toUpperCase(), PX, fy);
   g.textAlign = "right";
-  const d = new Date();
-  g.fillText(`${CONFIG.hashtag ? CONFIG.hashtag + "  ·  " : ""}NO. ${edition()}  ·  ${d.getMonth()+1}.${d.getDate()}.${String(d.getFullYear()).slice(2)}`, PHOTO.x + PHOTO.w, fy);
+  g.fillText(`AFTER ${ARTISTS[S.artist].name.toUpperCase()}  ·  NO. ${String(S.edition).padStart(4, "0")}`, PX + PW, fy);
   g.textAlign = "left";
-  g.fillRect(PHOTO.x, fy - 40, PHOTO.w, 3);
 }
 
-/* =========================================================
-   Drawing interaction
-   ========================================================= */
+const ICON = {
+  dot: '<circle cx="15" cy="15" r="11" fill="none" stroke="#0e0e14" stroke-width="3.5"/>',
+  bar: '<rect x="3" y="9" width="24" height="12" fill="none" stroke="#0e0e14" stroke-width="3.5"/>',
+  erase: '<path d="M7 7l16 16M23 7L7 23" stroke="#0e0e14" stroke-width="3.5"/>',
+  word: '<path d="M6 24L15 5l9 19M9.5 17h11" fill="none" stroke="#0e0e14" stroke-width="3.5" stroke-linejoin="round"/>',
+  blob: '<circle cx="12" cy="13" r="8" fill="none" stroke="#0e0e14" stroke-width="3"/><circle cx="19" cy="18" r="8" fill="none" stroke="#0e0e14" stroke-width="3"/>',
+  band: '<path d="M3 20c6-10 18-10 24 0" fill="none" stroke="#0e0e14" stroke-width="6" stroke-linecap="round"/>',
+};
+const TOOLS = { b: [["dot", "Dot"], ["bar", "Bar"], ["erase", "Erase"]], c: [["word", "Word"], ["blob", "Blob"], ["band", "Band"], ["erase", "Erase"]] };
+function setTools() {
+  $("#toolRow").innerHTML = TOOLS[S.artist].map(([k, label], i) =>
+    `<button class="tool${i ? "" : " on"}" data-tool="${k}"><svg viewBox="0 0 30 30">${ICON[k]}</svg>${label}</button>`).join("");
+  $$(".tool").forEach(b => b.onclick = () => { S.tool = b.dataset.tool; $$(".tool").forEach(x => x.classList.toggle("on", x === b)); sfx.tick(); });
+  S.tool = TOOLS[S.artist][0][0];
+  $("#splatBtn").textContent = ARTISTS[S.artist].splat;
+}
+function setPalette() {
+  $("#swatches").innerHTML = "";
+  S.palette.colors.forEach((c, i) => {
+    const b = document.createElement("button"); b.className = "swatch" + (i ? "" : " on"); b.style.background = c;
+    b.setAttribute("aria-label", "Color " + (i + 1));
+    b.onclick = () => { S.color = c; $$(".swatch").forEach(x => x.classList.toggle("on", x === b)); sfx.tick(); };
+    $("#swatches").appendChild(b);
+  });
+  S.color = S.palette.colors[0];
+}
+
+function score() {
+  const shapes = Math.min(S.shapes.length, 20) * 10;
+  const colors = new Set(S.shapes.map(s => s.color)).size * 20;
+  const mission = S.missionDone ? 250 : 0;
+  const time = S.missionDone ? Math.max(0, Math.round(S.timeLeft)) * 5 : 0;
+  const caption = S.custom ? 50 : 0;
+  const faces = (S.artist === "b" ? S.faces.filter(f => covered(f)).length : wordsUsed()) * 15;
+  const combo = S.bestCombo >= 3 ? S.bestCombo * 15 : 0;
+  return { shapes, colors, faces, combo, mission, time, caption, total: shapes + colors + faces + combo + mission + time + caption };
+}
+
+function updateMission() {
+  const [ok, prog] = S.mission.check(S);
+  $("#missionP").textContent = prog;
+  if (ok && !S.missionDone) { S.missionDone = true; sfx.ding(); toast("Mission complete! +250"); burst(40); }
+  else if (!ok && S.missionDone) { S.missionDone = false; }
+  $("#missionBox").classList.toggle("done", S.missionDone);
+  $("#missionTick").textContent = S.missionDone ? "✓" : "?";
+  $("#scoreNow").textContent = score().total;
+}
+
+function startBuild() {
+  S.shapes = []; S.missionDone = false; S.caption = ""; S.custom = false;
+  S.combo = 0; S.bestCombo = 0; S.lastDrop = 0; S.hiddenCount = 0;
+  setPalette();
+  $("#missionT").textContent = S.mission.t;
+  setTools(); S.wordIdx = 0; S.overlapPrev = 0;
+  show("build"); fitPoster(); render(); updateMission();
+  S.timeLeft = CONFIG.buildSeconds; S.t0 = performance.now();
+  clearInterval(S.timer);
+  let lastSec = CONFIG.buildSeconds;
+  S.timer = setInterval(() => {
+    S.timeLeft = CONFIG.buildSeconds - (performance.now() - S.t0) / 1000;
+    const sec = Math.max(0, Math.ceil(S.timeLeft));
+    $("#clock").textContent = sec;
+    $("#clock").classList.toggle("hurry", sec <= 10);
+    if (sec !== lastSec && sec <= 5 && sec > 0) sfx.tick();
+    lastSec = sec;
+    if (S.timeLeft <= 0) { S.timeLeft = 0; sfx.buzz(); toast("Time! Now caption it."); endBuild(); }
+  }, 100);
+}
+function endBuild() {
+  clearInterval(S.timer);
+  updateMission();
+  startCaption();
+}
+$("#goBtn").onclick = () => inspo().then(startBuild);
+
+// artist inspo card: who the artist is, what both artists share, then go
+let inspoTimer = null;
+function inspo() {
+  return new Promise(done => {
+    const A = ARTISTS[S.artist], bg = $("#inspoBg");
+    $("#inspoName").textContent = A.name; $("#inspoMeta").textContent = A.meta;
+    $("#inspoLine").textContent = A.line; $("#inspoBoth").textContent = BOTH;
+    $("#inspoMission").textContent = "Mission: " + S.mission.t;
+    bg.className = "inspo-bg " + S.artist; bg.innerHTML = "";
+    if (S.artist === "b") {
+      bg.style.backgroundImage = `url(${STILLS.find(x => x.canvas === S.photo).thumb})`;
+      const k = Math.max(innerWidth, innerHeight) / PW, ox = (innerWidth - PW * k) / 2, oy = (innerHeight - PW * k) / 2;
+      bg.style.filter = "none";
+      S.faces.forEach((f, n) => bg.insertAdjacentHTML("beforeend",
+        `<i style="left:${ox + (f.x - f.r * 1.1) * k}px;top:${oy + (f.y - f.r * 1.1) * k}px;width:${f.r * 2.2 * k}px;height:${f.r * 2.2 * k}px;background:${S.palette.colors[n % S.palette.colors.length]};animation-delay:${300 + n * 90}ms"></i>`));
+    } else {
+      bg.style.backgroundImage = "none";
+      const cols = S.palette.colors;
+      for (let n = 0; n < 7; n++) { const r = 18 + Math.random() * 22;
+        bg.insertAdjacentHTML("beforeend", `<i style="left:${Math.random() * 90 - 10}vw;top:${Math.random() * 90 - 10}vh;width:${r}vmax;height:${r}vmax;background:${cols[n % cols.length]};animation-delay:${n * 80}ms"></i>`); }
+      phraseWords().forEach((w, n) => bg.insertAdjacentHTML("beforeend",
+        `<em style="left:${5 + Math.random() * 50}vw;top:${8 + n * 26}vh;font-size:${14 + Math.random() * 8}vmin;color:${cols[(n + 1) % cols.length]};--r:${(Math.random() * 24 - 12).toFixed(1)}deg;animation-delay:${400 + n * 120}ms">${w}</em>`));
+    }
+    $("#inspo").hidden = false; sfx.ding();
+    let left = 7;
+    $("#inspoCount").textContent = left;
+    const finish = () => { clearInterval(inspoTimer); $("#inspo").hidden = true; done(); };
+    clearInterval(inspoTimer);
+    inspoTimer = setInterval(() => { left--; $("#inspoCount").textContent = left; if (left <= 3 && left > 0) sfx.beep(); if (left <= 0) finish(); }, 1000);
+    $("#inspoGo").onclick = finish;
+  });
+}
+$("#doneBtn").onclick = () => { if (!S.shapes.length) return toast("Drop at least one dot first."); endBuild(); };
+
+// keep the 4:5 poster as large as the stage allows
+function fitPoster() {
+  const st = poster.parentElement.getBoundingClientRect();
+  let h = st.height, w = h * .8;
+  if (w > st.width) { w = st.width; h = w / .8; }
+  poster.style.width = Math.floor(w) + "px"; poster.style.height = Math.floor(h) + "px";
+}
+addEventListener("resize", () => { if (!$("#build").hidden) fitPoster(); });
+
 function pt(e) {
   const r = poster.getBoundingClientRect();
-  return { x: (e.clientX - r.left) / r.width * W - PHOTO.x, y: (e.clientY - r.top) / r.height * H - PHOTO.y };
+  return { x: (e.clientX - r.left) / r.width * W - PX, y: (e.clientY - r.top) / r.height * H - PY };
 }
-function hit(p) {
-  for (let i = state.shapes.length - 1; i >= 0; i--) {
-    const s = state.shapes[i];
-    if (s.type === "dot" && Math.hypot(p.x - s.x, p.y - s.y) <= s.r) return i;
-    if (s.type === "bar") {
-      const x0 = Math.min(s.x, s.x + s.w), y0 = Math.min(s.y, s.y + s.h);
-      if (p.x >= x0 && p.x <= x0 + Math.abs(s.w) && p.y >= y0 && p.y <= y0 + Math.abs(s.h)) return i;
-    }
+function makeWord(text, x, y, size, color) {
+  ctx.font = WORD_FONT(size);
+  return { type: "word", text, x, y, size, color, blend: "multiply", rot: (Math.random() * 28 - 14) * Math.PI / 180,
+    w: ctx.measureText(text).width, h: size * .82, r: size * .45 };
+}
+function hit(p) { for (let i = S.shapes.length - 1; i >= 0; i--) if (inShape(p.x, p.y, S.shapes[i])) return i; return -1; }
+// a dot falls from the top of the picture, squashes on impact and throws a shockwave
+const FALL = 230, SETTLE = 520;
+function dropFrame(s, now) {
+  const t = now - s.anim;
+  if (t < FALL) { const k = t / FALL; return { dy: -(s.y + s.r + 30) * (1 - k * k), sx: .9, sy: 1.1, ring: 0 }; }
+  const k = Math.min(1, (t - FALL) / SETTLE), w = Math.sin(k * Math.PI * 3) * Math.exp(-k * 4);
+  return { dy: 0, sx: 1 + .3 * w, sy: 1 - .3 * w, ring: 1 - k };
+}
+let animating = false;
+function animLoop() {
+  if (animating) return; animating = true;
+  (function f() {
+    const now = performance.now();
+    S.shapes.forEach(s => { if (s.anim && now - s.anim > FALL + SETTLE) delete s.anim; });
+    render(ctx, now);
+    if (S.shapes.some(s => s.anim)) requestAnimationFrame(f); else animating = false;
+  })();
+}
+function dropIn(s) {
+  s.anim = performance.now(); animLoop();
+  setTimeout(() => landed(s), FALL);
+}
+function landed(s) {
+  sfx.pop();
+  if (s.r > 140) { sfx.thud(); poster.classList.remove("thud"); void poster.offsetWidth; poster.classList.add("thud"); }
+  const now = performance.now();
+  S.combo = now - S.lastDrop < 900 ? S.combo + 1 : 1; S.lastDrop = now;
+  S.bestCombo = Math.max(S.bestCombo, S.combo);
+  popup(s.x, s.y - s.r * .4, "+10", "");
+  if (S.combo >= 3) { popup(s.x, s.y - s.r - 30, `COMBO x${S.combo}!`, "combo"); tone(500 + S.combo * 90, .12, "square", .07); }
+  const hidden = S.faces.filter(f => covered(f)).length;
+  if (hidden > S.hiddenCount) popup(s.x, s.y + s.r * .5, hidden - S.hiddenCount > 1 ? `${hidden - S.hiddenCount} FACES GONE!` : "FACE GONE!", "face");
+  S.hiddenCount = hidden;
+  if (S.artist === "c") {
+    const o = sample().overlap;
+    if (o > S.overlapPrev + .01) popup(s.x, s.y + s.r * .5, "LAYERED!", "face");
+    S.overlapPrev = o;
   }
-  return -1;
+  updateMission();
+}
+// floating points over the poster
+function popup(x, y, text, cls) {
+  const r = poster.getBoundingClientRect(), el = document.createElement("div");
+  el.className = "pts " + cls; el.textContent = text;
+  el.style.left = r.left + (PX + x) / W * r.width + "px"; el.style.top = r.top + (PY + y) / H * r.height + "px";
+  document.body.appendChild(el); setTimeout(() => el.remove(), 1000);
+}
+function popIn(s) {
+  const t0 = performance.now();
+  (function f(now) { const k = Math.min(1, (now - t0) / 220); s.pop = k < 1 ? 1 + Math.sin(k * Math.PI) * .18 - (1 - k) * .3 : 1; render(); if (k < 1) requestAnimationFrame(f); else delete s.pop; })(t0);
 }
 let drag = null;
 poster.addEventListener("pointerdown", e => {
-  if (!state.photo) return;
-  poke();
   const p = pt(e);
-  if (p.x < 0 || p.y < 0 || p.x > PHOTO.w || p.y > PHOTO.h) return;
-  if (state.step !== 1) go(1);
+  if (p.x < 0 || p.y < 0 || p.x > PW || p.y > PW) return;
   poster.setPointerCapture(e.pointerId);
   const i = hit(p);
-  if (state.tool === "erase") { if (i >= 0) { state.shapes.splice(i, 1); render(); } return; }
-  if (i >= 0) { const s = state.shapes[i]; drag = { mode: "move", s, dx: p.x - s.x, dy: p.y - s.y }; return; }
-  if (state.tool === "dot") {
-    const s = { type: "dot", x: p.x, y: p.y, r: state.size / 2 + 10, color: state.color };
-    state.shapes.push(s); drag = { mode: "move", s, dx: 0, dy: 0 };
-  } else {
-    const s = { type: "bar", x: p.x, y: p.y, w: 1, h: 1, color: state.color, fresh: true };
-    state.shapes.push(s); drag = { mode: "bar", s };
+  if (S.tool === "erase") { if (i >= 0) { S.shapes.splice(i, 1); sfx.erase(); render(); S.hiddenCount = S.faces.filter(f => covered(f)).length; updateMission(); } return; }
+  if (i >= 0) { const s = S.shapes[i]; drag = { mode: "move", s, dx: p.x - s.x, dy: p.y - s.y }; return; }
+  if (S.tool === "word") {
+    const s = makeWord(phraseWords()[S.wordIdx++ % phraseWords().length], p.x, p.y, S.size * 1.25 + 30, S.color);
+    S.shapes.push(s); drag = { mode: "move", s, dx: 0, dy: 0, fresh: true }; dropIn(s);
+    return;
   }
-  render();
+  if (S.tool === "dot" || S.tool === "blob") {
+    const s = { type: "dot", x: p.x, y: p.y, r: S.size / 2 + 8, color: S.color };
+    if (S.tool === "blob") { s.blend = "multiply"; s.r *= 1.3; }
+    S.shapes.push(s); drag = { mode: "move", s, dx: 0, dy: 0, fresh: true }; dropIn(s);
+    return;
+  } else {
+    const s = { type: "bar", x: p.x, y: p.y, w: 1, h: 1, color: S.color };
+    if (S.tool === "band") s.blend = "multiply";
+    S.shapes.push(s); drag = { mode: "bar", s }; sfx.pop();
+  }
+  render(); updateMission();
 });
 poster.addEventListener("pointermove", e => {
   if (!drag) return;
   const p = pt(e);
-  if (drag.mode === "move") { drag.s.x = p.x - drag.dx; drag.s.y = p.y - drag.dy; }
+  if (drag.mode === "move") { drag.s.x = p.x - drag.dx; drag.s.y = p.y - drag.dy; delete drag.s.anim; }
   else { drag.s.w = p.x - drag.s.x; drag.s.h = p.y - drag.s.y; }
   render();
 });
 const endDrag = () => {
-  if (drag && drag.mode === "bar") {
-    const s = drag.s; delete s.fresh;
-    // a tap with the bar tool drops a default-sized bar (great for "eye bars")
-    if (Math.abs(s.w) < 12 && Math.abs(s.h) < 12) { s.w = state.size * 2.6; s.h = state.size * .55; s.x -= s.w / 2; s.y -= s.h / 2; render(); }
+  if (drag?.mode === "bar") {
+    const s = drag.s;
+    if (Math.abs(s.w) < 12 && Math.abs(s.h) < 12) { s.w = S.size * 2.6; s.h = S.size * .6; s.x -= s.w / 2; s.y -= s.h / 2; }
   }
+  if (drag && !(drag.fresh && drag.s.anim)) { render(); updateMission(); }
   drag = null;
 };
 poster.addEventListener("pointerup", endDrag);
 poster.addEventListener("pointercancel", endDrag);
 
+$("#size").oninput = e => S.size = +e.target.value;
+$("#undoBtn").onclick = () => { if (S.shapes.pop()) { sfx.erase(); render(); S.hiddenCount = S.faces.filter(f => covered(f)).length; updateMission(); } };
+// chance move: throw a handful of dots
+// chance move: throw a handful of shapes (dots for Baldessari; blobs and ad words for Corita)
+$("#splatBtn").onclick = () => {
+  const n = 5 + (Math.random() * 4 | 0), rx = () => 60 + Math.random() * (PW - 120);
+  for (let k = 0; k < n; k++) setTimeout(() => {
+    let s;
+    if (S.artist === "c" && k % 3 === 0) s = makeWord(phraseWords()[S.wordIdx++ % phraseWords().length], rx(), rx(), 90 + Math.random() * 200, pick(S.palette.colors));
+    else { s = { type: "dot", x: rx(), y: rx(), r: 20 + Math.random() * 90, color: pick(S.palette.colors) }; if (S.artist === "c") { s.blend = "multiply"; s.r *= 1.6; } }
+    S.shapes.push(s); dropIn(s);
+  }, k * 90);
+};
+
 /* =========================================================
-   UI wiring
+   Caption screen
    ========================================================= */
-function go(n) {
-  state.step = n;
-  $$("#steps button").forEach(b => b.classList.toggle("on", +b.dataset.step === n));
-  $$(".pane").forEach(p => p.classList.toggle("on", +p.dataset.pane === n));
-  if (n === 3) finish();
+const capsFor = () => S.artist === "c" ? C_CAPTIONS : CAPTIONS;
+function startCaption() {
+  S.spinsLeft = 3; S.custom = false; $("#capIn").value = "";
+  S.caption = pick(capsFor());
+  $("#capHint").textContent = ARTISTS[S.artist].capHint;
+  render(); $("#capPreview").src = poster.toDataURL("image/jpeg", .85);
+  $("#capSlot").textContent = S.caption;
+  $("#capBonus").textContent = "Spins left: 3";
+  $("#rollBtn").disabled = false;
+  show("caption");
 }
-$$("#steps button").forEach(b => b.onclick = () => { if (state.photo || b.dataset.step === "0") go(+b.dataset.step); });
-$$("[data-go]").forEach(b => b.onclick = () => go(+b.dataset.go));
-
-// scenes
-STILLS.forEach((s, i) => {
-  const b = document.createElement("button");
-  const img = new Image(); img.src = s.canvas.toDataURL("image/jpeg", .7); img.alt = SCENES[i].name;
-  b.appendChild(img); b.title = SCENES[i].name;
-  b.onclick = () => { $$("#scenes button").forEach(x => x.classList.remove("on")); b.classList.add("on"); setPhoto(s.canvas, s.faces); };
-  $("#scenes").appendChild(b);
-});
-
-// swatches
-COLORS.forEach((c, i) => {
-  const b = document.createElement("button"); b.className = "swatch" + (i ? "" : " on");
-  b.style.background = c; b.setAttribute("aria-label", "color " + c);
-  b.onclick = () => { state.color = c; $$(".swatch").forEach(x => x.classList.remove("on")); b.classList.add("on"); };
-  $("#swatches").appendChild(b);
-});
-$$(".tool").forEach(b => b.onclick = () => {
-  state.tool = b.dataset.tool; $$(".tool").forEach(x => x.classList.toggle("on", x === b));
-});
-$("#size").oninput = e => state.size = +e.target.value;
-$("#undoBtn").onclick = () => { state.shapes.pop(); render(); };
-$("#clearBtn").onclick = () => { state.shapes = []; render(); };
-$("#bwBtn").onclick = () => { state.bw = !state.bw; $("#bwBtn").textContent = state.bw ? "Color photo" : "B&W photo"; render(); };
-$("#autoBtn").onclick = () => {
-  state.faces.forEach((f, i) => state.shapes.push({ type: "dot", x: f.x, y: f.y, r: f.r * 1.08,
-    color: state.color }));
-  render();
+$("#rollBtn").onclick = () => {
+  if (S.spinsLeft <= 0) return;
+  S.spinsLeft--; $("#capIn").value = ""; S.custom = false;
+  const slot = $("#capSlot"); slot.classList.add("rolling");
+  let n = 0;
+  const iv = setInterval(() => {
+    slot.textContent = pick(capsFor()); sfx.tick();
+    if (++n > 12) { clearInterval(iv); S.caption = slot.textContent; slot.classList.remove("rolling"); sfx.land(); }
+  }, 60 + n * 4);
+  $("#capBonus").textContent = S.spinsLeft ? `Spins left: ${S.spinsLeft}` : "No spins left. Lock it in or write your own.";
+  $("#rollBtn").disabled = S.spinsLeft <= 0;
 };
+$("#capIn").oninput = e => {
+  const v = e.target.value.trim();
+  S.custom = v.length >= 3;
+  if (v) { S.caption = v; $("#capSlot").textContent = v; }
+  $("#capBonus").textContent = S.custom ? "Your own caption: +50" : `Spins left: ${S.spinsLeft}`;
+};
+$("#lockBtn").onclick = reveal;
 
-// captions
-function drawCaptions() {
-  const pick = [...CAPTIONS].sort(() => Math.random() - .5).slice(0, 5);
-  $("#captions").innerHTML = "";
-  pick.forEach(c => {
-    const b = document.createElement("button"); b.textContent = c;
-    b.onclick = () => { state.caption = c; $("#capIn").value = ""; $$("#captions button").forEach(x => x.classList.toggle("on", x === b)); render(); };
-    $("#captions").appendChild(b);
-  });
+/* =========================================================
+   Reveal
+   ========================================================= */
+function escapeHtml(t) { return t.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]); }
+function rankFor(cov, mystery, colors, n) {
+  if (S.artist === "c") {
+    if (wordsUsed() >= phraseWords().length && phraseWords().length > 1) return "Word Wrangler";
+    if (sample().overlap >= .2) return "Layer Legend";
+    if (colors >= 4) return "Color Riot";
+    if (cov >= .6) return "Joy Machine";
+    return pick(["Pop Prophet", "Sign Painter Supreme", "Headline Hero"]);
+  }
+  if (n <= 3) return "The Minimalist";
+  if (mystery >= 1 && S.faces.length) return "Master of Mystery";
+  if (colors >= 4) return "Chromatic Troublemaker";
+  if (cov >= .5) return "Bold Move Club";
+  if (n >= 14) return "Maximalist Menace";
+  return pick(["Certified Conceptualist", "Professional Disruptor", "Dot Dropper Supreme"]);
 }
-$("#shuffleBtn").onclick = drawCaptions;
-$("#capIn").oninput = e => { state.caption = e.target.value || CAPTIONS[0]; $$("#captions button").forEach(x => x.classList.remove("on")); render(); };
-
-// chance: random still, random dots, random caption — the Baldessari "throw three balls" button
-$("#chanceBtn").onclick = () => {
-  const i = Math.floor(Math.random() * STILLS.length);
-  setPhoto(STILLS[i].canvas, STILLS[i].faces);
-  const c = COLORS[Math.floor(Math.random() * 5)];
-  const mixed = Math.random() < .5;
-  STILLS[i].faces.forEach((f, k) => state.shapes.push({ type: "dot", x: f.x, y: f.y, r: f.r * 1.08, color: mixed ? COLORS[k % 5] : c }));
-  state.caption = CAPTIONS[Math.floor(Math.random() * CAPTIONS.length)];
-  render(); toast("Chance made some choices. Now change one.");
-};
-
-/* ---------- camera ---------- */
-let stream = null;
-$("#camBtn").onclick = async () => {
-  if (!navigator.mediaDevices?.getUserMedia) return $("#fileIn").click();
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: 1280, height: 1280 }, audio: false });
-    $("#video").srcObject = stream; await $("#video").play();
-    $("#cam").classList.add("on");
-  } catch { $("#fileIn").click(); }
-};
-function stopCam() { stream?.getTracks().forEach(t => t.stop()); stream = null; $("#cam").classList.remove("on"); $("#count").textContent = ""; }
-$("#camCancel").onclick = stopCam;
-$("#camShoot").onclick = async () => {
-  for (const n of [3, 2, 1]) { $("#count").textContent = n; await new Promise(r => setTimeout(r, 800)); }
-  $("#count").textContent = "";
-  const v = $("#video");
-  const shot = coverInto(v, v.videoWidth, v.videoHeight, true);
-  $("#flash").style.transition = "none"; $("#flash").style.opacity = 1;
-  requestAnimationFrame(() => { $("#flash").style.transition = "opacity .5s"; $("#flash").style.opacity = 0; });
-  setTimeout(() => { stopCam(); setPhoto(shot, []); toast("Now hide your face. Seriously."); }, 350);
-};
-$("#fileIn").onchange = e => {
-  const f = e.target.files[0]; if (!f) return;
-  const img = new Image();
-  img.onload = () => { setPhoto(coverInto(img, img.naturalWidth, img.naturalHeight, false), []); URL.revokeObjectURL(img.src); };
-  img.src = URL.createObjectURL(f); e.target.value = "";
-};
-
-/* ---------- finish / share ---------- */
-let finalBlob = null;
-function finish() {
+function reveal() {
   render();
-  const n = edition();
-  $("#doneNote").textContent = `Edition no. ${n}. You made a picture, edited it, and gave it a caption. That's graphic design.`;
-  $("#talkPoint").textContent = TALKING_POINTS[Math.floor(Math.random() * TALKING_POINTS.length)];
-  poster.toBlob(b => finalBlob = b, "image/png");
-  // keep a thumbnail for the attract-screen wall
-  const t = document.createElement("canvas"); t.width = 270; t.height = 338;
-  t.getContext("2d").drawImage(poster, 0, 0, 270, 338);
+  S.final = poster.toDataURL("image/png");
+  $("#finalImg").src = S.final;
+  const sc = score(), cov = coverage();
+  const mystery = S.artist === "c" ? sample().overlap * 4 : S.faces.length ? S.faces.filter(f => covered(f)).length / S.faces.length : Math.min(1, cov * 1.5);
+  const colors = new Set(S.shapes.map(s => s.color)).size;
+  $("#rank").textContent = rankFor(cov, mystery, colors, S.shapes.length);
+  $("#breakdown").innerHTML = [
+    ["Shapes", sc.shapes], ["Color range", sc.colors], [ARTISTS[S.artist].bonusLabel, sc.faces], [`Best combo x${S.bestCombo}`, sc.combo],
+    [S.missionDone ? `Mission: ${S.mission.t}` : "Mission missed", sc.mission],
+    ["Time bonus", sc.time], ["Own caption", sc.caption],
+  ].map(([k, v]) => `<div><span>${k}</span><span>+${v}</span></div>`).join("");
+  const [m1, m2, m3] = ARTISTS[S.artist].meters;
+  $("#meters").innerHTML = [[m1, cov * 1.6, C.red], [m2, mystery, C.cobalt], [m3, S.shapes.length / 16, C.pink]]
+    .map(([k, v, c]) => `<div class="meter">${k.toUpperCase()}<span><b data-w="${Math.round(Math.min(1, v) * 100)}" style="background:${c}"></b></span></div>`).join("");
+  requestAnimationFrame(() => requestAnimationFrame(() => $$(".meter b").forEach(b => b.style.width = b.dataset.w + "%")));
+  $("#talk").innerHTML = `<b>Talk about it</b>${pick(S.artist === "c" ? C_TALK : TALK)}`;
+  $("#initIn").value = ""; $("#saveScoreBtn").disabled = false; $("#saveScoreBtn").textContent = "Save score";
+  const yr = new Date().getFullYear();
+  $("#placard").innerHTML = `<b>Untitled (${escapeHtml(S.caption.replace(/[.]$/, ""))}), ${yr}</b>${ARTISTS[S.artist].medium}, ${S.artist === "c" ? `words borrowed from “${escapeHtml(S.phrase)}”` : S.photoName.toLowerCase()}<br>After ${ARTISTS[S.artist].name} · ${S.shapes.length} shapes, made in ${Math.max(1, Math.round(CONFIG.buildSeconds - S.timeLeft))} seconds<small>Dot Pop no. ${String(S.edition).padStart(4, "0")} · ${CONFIG.school}</small>`;
+  $("#bigScore").textContent = "0";
+  $("#gallery").classList.remove("lit");
+  show("reveal");
+  // lights off, click, spotlight on, then the score
+  setTimeout(() => { sfx.click(); $("#gallery").classList.add("lit"); }, 650);
+  setTimeout(() => {
+    sfx.fanfare(); burst(160);
+    const t0 = performance.now();
+    (function up(now) { const k = Math.min(1, (now - t0) / 1200); $("#bigScore").textContent = Math.round(sc.total * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(up); })(t0);
+  }, 1300);
+  try { localStorage.setItem("dd-edition", String(S.edition)); } catch {}
+}
+$("#saveScoreBtn").onclick = () => {
+  const i = ($("#initIn").value || "???").toUpperCase().slice(0, 3);
+  const hs = highScores(); hs.push({ i, s: score().total });
+  hs.sort((a, b) => b.s - a.s);
+  try { localStorage.setItem("dd-scores", JSON.stringify(hs.slice(0, 10))); } catch {}
+  const place = hs.findIndex(h => h.i === i && h.s === score().total) + 1;
+  toast(place <= 5 ? `You're #${place} today!` : "Score saved.");
+  $("#saveScoreBtn").disabled = true; $("#saveScoreBtn").textContent = "Saved";
+};
+let downloads = null;
+(async () => { try { downloads = await window.claude?.use?.("downloads"); } catch {} })();
+$("#saveBtn").onclick = async () => {
+  if (!S.final) return;
+  const blob = await (await fetch(S.final)).blob();
+  const name = `dot-pop-${String(S.edition).padStart(4, "0")}.png`;
+  if (downloads) {
+    try { await downloads.save({ filename: name, data: blob }); toast("Saved!"); return; }
+    catch (err) { if (err?.code === "declined") return; }
+  }
+  // outside the Claude viewer (for example on GitHub Pages) a plain download link works
   try {
-    const g = JSON.parse(localStorage.getItem("bb-gallery") || "[]");
-    g.unshift(t.toDataURL("image/jpeg", .7));
-    localStorage.setItem("bb-gallery", JSON.stringify(g.slice(0, CONFIG.galleryMax)));
-    localStorage.setItem("bb-edition", String(+n));
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 3000);
   } catch {}
-}
-const fileName = () => `dot-your-face-${edition()}.png`;
-$("#saveBtn").onclick = () => {
-  poster.toBlob(b => {
-    const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = fileName(); a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-  }, "image/png");
+  toast("Saved! Or press and hold the poster.");
 };
-$("#shareBtn").onclick = async () => {
-  const file = finalBlob && new File([finalBlob], fileName(), { type: "image/png" });
-  if (file && navigator.canShare?.({ files: [file] })) {
-    try { await navigator.share({ files: [file], title: "I made this at the " + CONFIG.school + " table" }); } catch {}
-  } else { $("#saveBtn").click(); toast("Saved. AirDrop or text it from the gallery."); }
-};
-$("#againBtn").onclick = () => showAttract();
+$("#againBtn").onclick = () => { S.edition++; goTitle(); };
 
-/* ---------- timer, idle, attract ---------- */
-let lastPoke = Date.now();
-function poke() { lastPoke = Date.now(); }
-document.addEventListener("pointerdown", poke, true);
-function tick() {
-  if (!$("#attract").classList.contains("hidden")) return requestAnimationFrame(tick);
-  const left = Math.max(0, 1 - (Date.now() - state.started) / (CONFIG.timerSeconds * 1000));
-  $("#timerBar").style.transform = `scaleX(${left})`;
-  if (Date.now() - lastPoke > CONFIG.idleResetSeconds * 1000) showAttract();
-  requestAnimationFrame(tick);
+/* =========================================================
+   Confetti (dots, naturally)
+   ========================================================= */
+const cv = $("#confetti"), cg = cv.getContext("2d"); let parts = [];
+function burst(n) {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  cv.width = innerWidth; cv.height = innerHeight;
+  const cols = [C.red, C.sun, C.mint, C.pink, C.orange, C.sky, C.cobalt];
+  for (let i = 0; i < n; i++) parts.push({ x: innerWidth / 2 + (Math.random() - .5) * 200, y: innerHeight * .4, vx: (Math.random() - .5) * 18,
+    vy: -Math.random() * 16 - 4, r: 4 + Math.random() * 9, c: pick(cols), life: 90 + Math.random() * 60 });
+  if (parts.length === n) requestAnimationFrame(confetti);
+}
+function confetti() {
+  cg.clearRect(0, 0, cv.width, cv.height);
+  parts = parts.filter(p => p.life-- > 0 && p.y < cv.height + 40);
+  for (const p of parts) { p.vy += .5; p.vx *= .99; p.x += p.vx; p.y += p.vy; cg.fillStyle = p.c; cg.beginPath(); cg.arc(p.x, p.y, p.r, 0, Math.PI * 2); cg.fill(); }
+  if (parts.length) requestAnimationFrame(confetti); else cg.clearRect(0, 0, cv.width, cv.height);
 }
 
-function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 2600); }
-
-function startSession() {
-  state.shapes = []; state.photo = null; state.faces = []; state.bw = true; state.started = Date.now();
-  $$(".tool")[0].click();
-  $("#bwBtn").textContent = "Color photo";
-  state.caption = CAPTIONS[Math.floor(Math.random() * CAPTIONS.length)];
-  $("#capIn").value = ""; drawCaptions(); $$("#scenes button").forEach(x => x.classList.remove("on"));
-  $("#attract").classList.add("hidden"); go(0); render(); poke();
+/* =========================================================
+   Flow + idle reset
+   ========================================================= */
+function goTitle() {
+  clearInterval(S.timer); drawTitle(); show("title");
 }
-let heroTimer;
-function showAttract() {
-  stopCam();
-  $("#attract").classList.remove("hidden");
-  $("#tagline").textContent = `${CONFIG.school} · ${CONFIG.program} · Admissions`;
-  // wall of recent work from this device
-  let g = []; try { g = JSON.parse(localStorage.getItem("bb-gallery") || "[]"); } catch {}
-  $("#wall").innerHTML = g.map(src => `<img src="${src}" alt="">`).join("");
-  // hero: a found still that keeps getting dotted
-  const hp = $("#heroPhoto"); clearInterval(heroTimer);
-  const cycle = () => {
-    const s = STILLS[Math.floor(Math.random() * STILLS.length)];
-    hp.innerHTML = ""; const c = toGray(s.canvas); hp.appendChild(c);
-    s.faces.forEach((f, i) => {
-      const d = document.createElement("div"); d.className = "hero-dot";
-      const k = 100 / PHOTO.w;
-      Object.assign(d.style, { left: (f.x - f.r*1.08) * k + "%", top: (f.y - f.r*1.08) * k + "%",
-        width: f.r * 2.16 * k + "%", height: f.r * 2.16 * k + "%", background: COLORS[i % 5], animationDelay: (600 + i * Math.min(180, 2800 / s.faces.length)) + "ms" });
-      hp.appendChild(d);
-    });
-  };
-  cycle(); heroTimer = setInterval(cycle, 5200);
+function goSpin() {
+  S.respins = 1; S.faces = []; S.photo = null;
+  $("#pullBtn").textContent = "Pull!"; $("#pullBtn").disabled = false; $("#goBtn").hidden = true;
+  ["#reelArt", "#reelMat", "#reelMis", "#reelPal"].forEach(r => { $(r).classList.remove("landed"); $(r + " .win").innerHTML = '<div class="mission" style="opacity:.25">?</div>'; });
+  show("spin");
 }
-$("#attract").onclick = startSession;
+$("#startBtn").onclick = () => { sfx.ding(); goSpin(); };
 
-showAttract(); render(); requestAnimationFrame(tick);
+let lastAct = Date.now();
+document.addEventListener("pointerdown", () => lastAct = Date.now(), true);
+document.addEventListener("keydown", () => lastAct = Date.now(), true);
+setInterval(() => {
+  if (!$("#title").hidden || !$("#build").hidden) return;
+  if (Date.now() - lastAct > CONFIG.idleSeconds * 1000) goTitle();
+}, 2000);
+
+(document.fonts?.ready || Promise.resolve()).then(() => { render(); artistThumbs(); });
+artistThumbs();
+goTitle();
 </script>
+
 </body>
 </html>

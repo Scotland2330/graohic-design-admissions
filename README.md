@@ -12,11 +12,19 @@ in the manner of John Baldessari, add a deadpan caption, and leave with a finish
 
 | File | What it is |
 |---|---|
-| `index.html` | Tablet/laptop app. Attract screen → Picture → Cover → Caption → Done. |
+| `index.html` | **Dot Pop**, generated from `dot-drop.html` by `python3 build-standalone.py`. This is what GitHub Pages serves. |
+| `dot-drop.html` | Dot Pop source (also published as a Claude artifact). Edit this, then rebuild `index.html`. |
+| `kiosk.html` | The earlier, calmer kiosk version: Picture → Cover → Caption → Done. |
 | `print.html` | No-screen paper kit: table sign, 4 poster cards, caption slips, facilitator sheet. |
 | `stills.js` | The four found film stills, drawn in code so there are no photos to license. |
 
 No build step and no internet required once the files are on the device.
+
+## Sharing a public link
+
+The repo is public, so GitHub Pages gives a free link that needs no sign-in:
+*Settings → Pages → Build and deployment → Deploy from a branch*, pick this branch (or `main` once merged) and the `/ (root)` folder, then save.
+After a minute or two the game is at `https://scotland2330.github.io/graohic-design-admissions/`.
 
 ## Running it at an event
 
