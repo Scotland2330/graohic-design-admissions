@@ -111,7 +111,34 @@ button:focus-visible, input:focus-visible { outline: 4px solid var(--sun); outli
 .missionbox.done { background: var(--mint); }
 .missionbox.done .tick { background: var(--white); }
 .missionbox.done .p { color: var(--ink); }
-.stage { display: grid; place-items: center; min-height: 0; min-width: 0; height: 100%; }
+.stage { display: grid; place-items: center; min-height: 0; min-width: 0; height: 100%; position: relative; }
+
+/* the coach: tells the player exactly what to do next, and lives inside each screen */
+.coach-slot:empty { display: none; }
+.coach-slot { width: 100%; display: flex; justify-content: center; }
+.coach { display: flex; gap: 12px; align-items: center; width: 100%; max-width: 620px; background: var(--white); color: var(--ink);
+  border: 4px solid var(--ink); border-radius: 18px; padding: 10px 14px; box-shadow: 4px 4px 0 var(--ink); text-align: left; }
+.coach.pop { animation: coachpop .35s cubic-bezier(.2, 1.5, .4, 1); }
+@keyframes coachpop { from { transform: scale(.92); } to { transform: none; } }
+.coach-face { width: 48px; height: 48px; flex: none; border-radius: 50%; background: var(--red); border: 3px solid var(--ink);
+  display: flex; gap: 7px; align-items: center; justify-content: center; animation: bob 1.6s ease-in-out infinite; }
+.coach-face i { width: 9px; height: 12px; border-radius: 50%; background: var(--white); box-shadow: inset 0 -4px 0 var(--ink); }
+.coach-text { min-width: 0; }
+.coach-step { font-weight: 900; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: #4a4a5c; }
+.coach-msg { font-weight: 800; font-size: 17px; line-height: 1.25; text-wrap: pretty; }
+.coach-msg b { background: var(--sun); padding: 0 4px; border-radius: 4px; white-space: nowrap; }
+.tools .coach { box-shadow: none; border-width: 3px; background: var(--sun); }
+.tools .coach-msg b { background: var(--white); }
+/* the button to press next */
+.nudge { animation: nudge 1.1s ease-in-out infinite; }
+@keyframes nudge { 0%, 100% { box-shadow: 4px 4px 0 var(--ink), 0 0 0 0 rgba(255, 214, 10, .95); } 60% { box-shadow: 4px 4px 0 var(--ink), 0 0 0 12px rgba(255, 214, 10, 0); } }
+/* "tap here" ring over the art before the first move */
+.taphint { position: absolute; z-index: 2; width: 96px; height: 96px; margin: -48px 0 0 -48px; border-radius: 50%; pointer-events: none;
+  border: 6px solid var(--sun); box-shadow: 0 0 0 4px var(--ink), inset 0 0 0 4px var(--ink); animation: tap 1.1s ease-in-out infinite; }
+.taphint span { position: absolute; top: 100%; left: 50%; transform: translate(-50%, 10px); white-space: nowrap; background: var(--ink); color: var(--white);
+  font-family: var(--display); font-size: 16px; padding: 4px 12px; border-radius: 999px; text-transform: uppercase; }
+@keyframes tap { 50% { transform: scale(.82); } }
+.inspo-tip { margin: 0; font-size: 14px; font-weight: 700; color: #4a4a5c; }
 #poster { display: block; border: 4px solid var(--ink); border-radius: 6px;
   box-shadow: var(--shadow); background: var(--white); touch-action: none; cursor: crosshair; }
 .tools { padding: 16px; display: flex; flex-direction: column; gap: 14px; overflow: auto; min-height: 0; }
@@ -243,6 +270,10 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 34px; }
 <button class="mute" id="muteBtn" aria-label="Sound on or off">SND</button>
 <canvas id="confetti"></canvas>
 <div class="toast" id="toast" role="status"></div>
+<div class="coach" id="coach" role="status" aria-live="polite">
+  <div class="coach-face" aria-hidden="true"><i></i><i></i></div>
+  <div class="coach-text"><div class="coach-step" id="coachStep"></div><div class="coach-msg" id="coachMsg"></div></div>
+</div>
 <div id="inspo" hidden>
   <div class="inspo-bg" id="inspoBg"></div>
   <div class="inspo-card card">
@@ -251,6 +282,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 34px; }
     <div class="inspo-meta" id="inspoMeta"></div>
     <p class="inspo-line" id="inspoLine"></p>
     <p class="inspo-both"><b>What they share</b><span id="inspoBoth"></span></p>
+    <p class="inspo-tip">Read this, then tap <b>Let's go</b>. You'll make art like this in the next 45 seconds.</p>
     <div class="inspo-row"><span class="inspo-mission" id="inspoMission"></span><button class="btn go" id="inspoGo">Let's go <span id="inspoCount"></span></button></div>
   </div>
 </div>
@@ -266,6 +298,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 34px; }
   </div>
   <div class="artists"><span>Starring</span><b>John Baldessari</b><i>+</i><b>Corita Kent</b></div>
   <button class="btn go start" id="startBtn">Press start</button>
+  <div class="coach-slot"></div>
   <div class="scores" id="scores"></div>
   <div class="credit" id="credit"></div>
 </section>
@@ -284,6 +317,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 34px; }
     <button class="btn sun" id="pullBtn">Pull!</button>
     <button class="btn go" id="goBtn" hidden>Cue the artist inspo</button>
   </div>
+  <div class="coach-slot"></div>
 </section>
 
 <!-- BUILD -->
@@ -296,8 +330,9 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 34px; }
       <div><div class="t" id="missionT"></div><div class="p" id="missionP"></div></div>
     </div>
   </div>
-  <div class="stage"><canvas id="poster" width="1080" height="1350" aria-label="Your artwork. Tap to add shapes."></canvas></div>
+  <div class="stage"><div class="taphint" id="tapHint" hidden><span>Tap here</span></div><canvas id="poster" width="1080" height="1350" aria-label="Your artwork. Tap to add shapes."></canvas></div>
   <div class="card tools">
+    <div class="coach-slot"></div>
     <div class="toolrow" id="toolRow"></div>
     <div><div class="label" style="margin-bottom:8px">Your palette</div><div class="swatches" id="swatches"></div></div>
     <div><label class="label" for="size">Size</label><input type="range" id="size" min="24" max="260" value="96"></div>
@@ -313,6 +348,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 34px; }
 <section class="screen" id="caption" hidden>
   <div class="stage"><img id="capPreview" alt="Your artwork so far"></div>
   <div class="card capcard">
+    <div class="coach-slot"></div>
     <h2>Caption roulette</h2>
     <p id="capHint"></p>
     <div class="capslot" id="capSlot"></div>
@@ -335,6 +371,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 34px; }
     </div>
   </div>
   <div class="card result">
+    <div class="coach-slot"></div>
     <div class="label">Your artist type</div>
     <div class="rank" id="rank"></div>
     <div class="big-score" id="bigScore">0</div>
@@ -717,7 +754,48 @@ $("#muteBtn").onclick = () => { S.sound = !S.sound; $("#muteBtn").textContent = 
    ========================================================= */
 function show(id) {
   $$(".screen").forEach(s => s.hidden = s.id !== id);
+  const slot = $("#" + id + " .coach-slot"); if (slot) slot.appendChild($("#coach"));
   window.scrollTo(0, 0);
+}
+// coach: one plain instruction at a time; **word** marks a button name
+let lastCoach = "";
+function coach(step, msg) {
+  if (msg === lastCoach) return; lastCoach = msg;
+  $("#coachStep").textContent = step;
+  $("#coachMsg").innerHTML = msg.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+  const c = $("#coach"); c.classList.remove("pop"); void c.offsetWidth; c.classList.add("pop");
+}
+function nudge(sel) { $$(".nudge").forEach(e => e.classList.remove("nudge")); if (sel) $(sel)?.classList.add("nudge"); }
+const STEP = { spin: "Step 1 of 4 · Spin", build: "Step 2 of 4 · Make it", caption: "Step 3 of 4 · Caption", reveal: "Step 4 of 4 · Gallery" };
+function buildCoach() {
+  if ($("#build").hidden) return;
+  const n = S.shapes.length, c = S.artist === "c";
+  if (n !== S.lastN) { S.toolTip = null; S.lastN = n; }
+  $("#tapHint").hidden = n > 0;
+  let m;
+  if (S.timeLeft <= 10 && S.timeLeft > 0) m = "10 seconds left! Tap **Done!** to finish and keep your time bonus.";
+  else if (S.missionDone) m = "Mission complete! Keep adding, or tap **Done!** to bank your time bonus.";
+  else if (S.toolTip) m = S.toolTip;
+  else if (n === 0) m = c ? `Tap anywhere on the paper. Each tap drops the next word of “${S.phrase}”.` : "Tap a face in the picture to drop a dot right on it.";
+  else if (n < 3) m = c ? "Nice! Now tap **Blob**, then tap over your words to layer see-through color." : "Nice! Drag a dot to move it. Slide **Size** to make dots bigger or smaller.";
+  else m = `Your mission: ${S.mission.d} The box at the top turns green when you nail it.`;
+  coach(STEP.build, m);
+  nudge(S.missionDone || (S.timeLeft <= 10 && S.timeLeft > 0) ? "#doneBtn" : null);
+}
+const TOOL_TIPS = {
+  erase: "Tap any shape to remove it. Tap **Dot** or **Word** to go back to adding.",
+  bar: "Drag across the picture to draw a bar. A quick tap drops a bar over the eyes.",
+  band: "Drag across the paper to draw a band of see-through color.",
+  blob: "Tap to drop a see-through color blob. Where colors overlap, they mix.",
+  word: `Each tap drops the next word. Make it big with **Size**, and let one run off the edge.`,
+  dot: "Tap to drop a dot. Drag a dot to move it.",
+};
+function placeTapHint() {
+  const st = $("#build .stage").getBoundingClientRect(), r = poster.getBoundingClientRect();
+  const f = S.artist === "b" && S.faces.length ? S.faces[0] : { x: PW / 2, y: PW / 2 };
+  const h = $("#tapHint");
+  h.style.left = (r.left - st.left) + (PX + f.x) / W * r.width + "px";
+  h.style.top = (r.top - st.top) + (PY + f.y) / H * r.height + "px";
 }
 function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 1900); }
 const pick = a => a[Math.floor(Math.random() * a.length)];
@@ -814,6 +892,7 @@ function spinReel(el, render, items, stopAt, final) {
 let spinning = false;
 async function pull() {
   if (spinning) return; spinning = true;
+  nudge(null); coach(STEP.spin, "Spinning… watch the reels!");
   $("#pullBtn").disabled = true; $("#goBtn").hidden = true;
   S.artist = pick(["b", "c"]);
   let mat;
@@ -829,6 +908,8 @@ async function pull() {
   spinning = false;
   $("#goBtn").hidden = false;
   $("#pullBtn").textContent = S.respins > 0 ? "Respin (1 left)" : "No respins left";
+  coach(STEP.spin, `You got <b>${ARTISTS[S.artist].name}</b>! Your mission: ${S.mission.t}. Ready? Tap **Cue the artist inspo** to meet your artist.`);
+  nudge("#goBtn");
   $("#pullBtn").disabled = S.respins <= 0;
   S.respins--;
 }
@@ -905,7 +986,7 @@ const TOOLS = { b: [["dot", "Dot"], ["bar", "Bar"], ["erase", "Erase"]], c: [["w
 function setTools() {
   $("#toolRow").innerHTML = TOOLS[S.artist].map(([k, label], i) =>
     `<button class="tool${i ? "" : " on"}" data-tool="${k}"><svg viewBox="0 0 30 30">${ICON[k]}</svg>${label}</button>`).join("");
-  $$(".tool").forEach(b => b.onclick = () => { S.tool = b.dataset.tool; $$(".tool").forEach(x => x.classList.toggle("on", x === b)); sfx.tick(); });
+  $$(".tool").forEach(b => b.onclick = () => { S.tool = b.dataset.tool; $$(".tool").forEach(x => x.classList.toggle("on", x === b)); sfx.tick(); S.toolTip = TOOL_TIPS[S.tool]; buildCoach(); });
   S.tool = TOOLS[S.artist][0][0];
   $("#splatBtn").textContent = ARTISTS[S.artist].splat;
 }
@@ -939,6 +1020,7 @@ function updateMission() {
   $("#missionBox").classList.toggle("done", S.missionDone);
   $("#missionTick").textContent = S.missionDone ? "✓" : "?";
   $("#scoreNow").textContent = score().total;
+  buildCoach();
 }
 
 function startBuild() {
@@ -947,7 +1029,8 @@ function startBuild() {
   setPalette();
   $("#missionT").textContent = S.mission.t;
   setTools(); S.wordIdx = 0; S.overlapPrev = 0;
-  show("build"); fitPoster(); render(); updateMission();
+  S.lastN = -1; S.toolTip = null;
+  show("build"); fitPoster(); placeTapHint(); render(); updateMission();
   S.timeLeft = CONFIG.buildSeconds; S.t0 = performance.now();
   clearInterval(S.timer);
   let lastSec = CONFIG.buildSeconds;
@@ -957,6 +1040,7 @@ function startBuild() {
     $("#clock").textContent = sec;
     $("#clock").classList.toggle("hurry", sec <= 10);
     if (sec !== lastSec && sec <= 5 && sec > 0) sfx.tick();
+    if (sec !== lastSec && sec === 10) buildCoach();
     lastSec = sec;
     if (S.timeLeft <= 0) { S.timeLeft = 0; sfx.buzz(); toast("Time! Now caption it."); endBuild(); }
   }, 100);
@@ -1009,7 +1093,7 @@ function fitPoster() {
   if (w > st.width) { w = st.width; h = w / .8; }
   poster.style.width = Math.floor(w) + "px"; poster.style.height = Math.floor(h) + "px";
 }
-addEventListener("resize", () => { if (!$("#build").hidden) fitPoster(); });
+addEventListener("resize", () => { if (!$("#build").hidden) { fitPoster(); placeTapHint(); } });
 
 function pt(e) {
   const r = poster.getBoundingClientRect();
@@ -1120,6 +1204,7 @@ $("#undoBtn").onclick = () => { if (S.shapes.pop()) { sfx.erase(); render(); S.h
 // chance move: throw a handful of dots
 // chance move: throw a handful of shapes (dots for Baldessari; blobs and ad words for Corita)
 $("#splatBtn").onclick = () => {
+  S.toolTip = "Chance made some moves! Drag anything you want to fix, or **Undo** it.";
   const n = 5 + (Math.random() * 4 | 0), rx = () => 60 + Math.random() * (PW - 120);
   for (let k = 0; k < n; k++) setTimeout(() => {
     let s;
@@ -1142,6 +1227,8 @@ function startCaption() {
   $("#capBonus").textContent = "Spins left: 3";
   $("#rollBtn").disabled = false;
   show("caption");
+  coach(STEP.caption, "Give your art a caption. Tap **Spin caption** for a new one, or type your own for +50. Then tap **Lock it in**.");
+  nudge("#lockBtn");
 }
 $("#rollBtn").onclick = () => {
   if (S.spinsLeft <= 0) return;
@@ -1160,6 +1247,7 @@ $("#capIn").oninput = e => {
   S.custom = v.length >= 3;
   if (v) { S.caption = v; $("#capSlot").textContent = v; }
   $("#capBonus").textContent = S.custom ? "Your own caption: +50" : `Spins left: ${S.spinsLeft}`;
+  if (S.custom) coach(STEP.caption, "Love it. Tap **Lock it in** when you're happy with it.");
 };
 $("#lockBtn").onclick = reveal;
 
@@ -1206,6 +1294,8 @@ function reveal() {
   $("#bigScore").textContent = "0";
   $("#gallery").classList.remove("lit");
   show("reveal");
+  coach(STEP.reveal, "Your art is hanging in the gallery! Type your initials and tap **Save score** to join the high scores.");
+  nudge("#saveScoreBtn");
   // lights off, click, spotlight on, then the score
   setTimeout(() => { sfx.click(); $("#gallery").classList.add("lit"); }, 650);
   setTimeout(() => {
@@ -1223,11 +1313,15 @@ $("#saveScoreBtn").onclick = () => {
   const place = hs.findIndex(h => h.i === i && h.s === score().total) + 1;
   toast(place <= 5 ? `You're #${place} today!` : "Score saved.");
   $("#saveScoreBtn").disabled = true; $("#saveScoreBtn").textContent = "Saved";
+  coach(STEP.reveal, "You're on the board! Tap **Save poster** to keep your art, then **Play again** for the next artist.");
+  nudge("#saveBtn");
 };
 let downloads = null;
 (async () => { try { downloads = await window.claude?.use?.("downloads"); } catch {} })();
 $("#saveBtn").onclick = async () => {
   if (!S.final) return;
+  coach(STEP.reveal, "Nice work, artist! Tap **Play again** to hand it to the next person.");
+  nudge("#againBtn");
   const blob = await (await fetch(S.final)).blob();
   const name = `dot-pop-${String(S.edition).padStart(4, "0")}.png`;
   if (downloads) {
@@ -1266,13 +1360,16 @@ function confetti() {
    Flow + idle reset
    ========================================================= */
 function goTitle() {
-  clearInterval(S.timer); drawTitle(); show("title");
+  clearInterval(S.timer); drawTitle(); show("title"); nudge(null);
+  coach("Welcome", "Hi! You're about to make a real piece of art in about a minute, inspired by two famous artists. Tap **Press start**.");
 }
 function goSpin() {
   S.respins = 1; S.faces = []; S.photo = null;
   $("#pullBtn").textContent = "Pull!"; $("#pullBtn").disabled = false; $("#goBtn").hidden = true;
   ["#reelArt", "#reelMat", "#reelMis", "#reelPal"].forEach(r => { $(r).classList.remove("landed"); $(r + " .win").innerHTML = '<div class="mission" style="opacity:.25">?</div>'; });
   show("spin");
+  coach(STEP.spin, "Tap **Pull!** The chance machine picks your artist, your material, a mission and your colors.");
+  nudge("#pullBtn");
 }
 $("#startBtn").onclick = () => { sfx.ding(); goSpin(); };
 
